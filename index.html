@@ -1,0 +1,3488 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>EINSTEINGAME</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- ESTILOS ORIGINAIS DO JOGO --- */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-image: url('sua-imagem-de-fundo.png'); /* <<-- SUBSTITUA PELO CAMINHO DA SUA IMAGEM */
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-color: #000;
+            color: white;
+            text-align: center;
+            touch-action: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        #intro {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        #intro img {
+            width: 60%;
+            max-width: 300px;
+        }
+
+        .aba { display: none; padding: 20px; box-sizing: border-box; height: 100vh; overflow-y: auto; padding-top: 60px; }
+        .ativo { display: block !important; }
+
+        .botao-grande-img {
+            width: 70vw;
+            max-width: 350px;
+            position: absolute;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 6;
+            cursor: pointer;
+        }
+
+        .menu-inferior, .botoes-laterais, .top-info {
+            position: fixed;
+            width: 100%;
+            left: 0;
+            z-index: 5;
+            box-sizing: border-box;
+        }
+
+        .menu-inferior {
+            bottom: 0;
+            background-color: #2c1042;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+        }
+
+        .menu-inferior div {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        .menu-inferior img, .botao-lateral img {
+            width: 30px;
+            height: 30px;
+            margin-bottom: 5px;
+        }
+
+        .botoes-laterais {
+            top: 60%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 10px;
+        }
+
+        .coluna { display: flex; flex-direction: column; gap: 10px; }
+
+        .botao-lateral {
+            background-color: white;
+            border-radius: 10px;
+            padding: 5px;
+        }
+
+        .top-info {
+            top: 0;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .botao-voltar {
+            background-color: white;
+            color: black;
+            border-radius: 5px;
+            padding: 5px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            border: none;
+        }
+
+        #top-bar-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 100;
+            display: none;
+        }
+
+        #jogo #top-bar-container {
+            display: flex;
+        }
+
+        .header-icons {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .top-bar-jogo {
+            position: static;
+            padding: 0;
+            width: auto;
+            display: block;
+        }
+
+        .hamburger-menu {
+            position: static;
+            width: 30px;
+            height: 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            cursor: pointer;
+            padding: 5px;
+        }
+        
+        .bar {
+            width: 100%;
+            height: 3px;
+            background-color: white;
+            border-radius: 2px;
+        }
+        
+        #perfil-icon {
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        #perfil-icon svg {
+            width: 100%;
+            height: 100%;
+            fill: white;
+        }
+
+        #perfil .delete-account-section {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #333;
+        }
+        
+        #perfil .delete-btn {
+            background-color: #a90000;
+            color: white;
+            width: 100%;
+            max-width: 300px;
+            border: 1px solid #ff4d4d;
+        }
+
+        #menu-lateral {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 280px;
+            height: 100%;
+            background-color: #1a1a1a;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.5);
+            z-index: 1001;
+            transition: right 0.3s ease-in-out;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        #menu-lateral.aberto {
+            right: 0;
+        }
+        
+        .menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .menu-header h2 {
+            margin: 0;
+            color: #ffd700;
+        }
+
+        .menu-item {
+            color: #eee;
+            padding: 15px 10px;
+            border-bottom: 1px solid #333;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.2s ease;
+        }
+        .menu-item:hover {
+            background-color: #2c1042;
+        }
+
+        .fechar-menu-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            padding: 0 5px;
+        }
+        
+        #menu-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.6);
+            z-index: 1000;
+        }
+
+        #menu-backdrop.ativo {
+            display: block;
+        }
+
+        .social-links {
+            padding-top: 40px;
+            padding-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            border-top: 1px solid #444;
+            margin-top: 20px;
+        }
+        
+        .social-btn {
+            width: 40px;
+            height: 40px;
+        }
+
+        .social-btn svg {
+            fill: #ccc;
+            width: 100%;
+            height: 100%;
+            transition: fill 0.2s ease;
+        }
+
+        .social-btn:hover svg {
+            fill: white;
+        }
+
+        .pontuacao-container {
+            margin-top: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .pontuacao {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        #ingresso-container {
+            position: relative;
+        }
+
+        #ingresso-isencao {
+            width: 50px;
+            height: auto;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        #ingresso-isencao:hover {
+            transform: scale(1.1);
+        }
+
+        #ingresso-comprado-aviso {
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4CAF50;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 10px;
+            font-weight: bold;
+            display: none;
+        }
+
+        #progress-mining-container {
+            width: 100%;
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            box-sizing: border-box;
+            padding: 0 15px;
+            gap: 10px;
+            min-height: 40px;
+        }
+        
+        #jogo #progress-mining-container {
+            display: flex;
+        }
+
+        .barra-progresso-btn {
+            flex-grow: 1;
+            height: 25px;
+            background: #222;
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            border: none;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .barra-progresso-btn div {
+            height: 100%;
+            background: #4caf50;
+            width: 0%;
+            transition: width 0.5s;
+        }
+        
+        .barra-progresso-btn span {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            text-shadow: 1px 1px 2px black;
+            width: 100%;
+            text-align: center;
+        }
+
+        .trading-info {
+            font-size: 14px;
+            background-color: rgba(44, 16, 66, 0.7);
+            border-radius: 8px;
+            padding: 5px 10px;
+            text-align: center;
+            box-sizing: border-box;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nft-item, .cartao {
+            background-color: #111;
+            border: 1px solid #444;
+            margin: 10px auto;
+            padding: 10px;
+            max-width: 300px;
+            border-radius: 10px;
+        }
+
+        .nft-item img, .cartao img {
+            width: 100%;
+            border-radius: 5px;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .status-nivel {
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .ranking {
+            text-align: left;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        #roleta-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 20px auto;
+            border-radius: 50%;
+            border: 5px solid #ffd700;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #333;
+        }
+
+        #roleta-roda {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            transition: transform 4s cubic-bezier(0.2, 0.9, 0.3, 1);
+        }
+
+        .segmento {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            top: 0;
+            left: 50%;
+            transform-origin: 0% 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: black;
+            font-size: 12px;
+            text-align: center;
+            box-sizing: border-box;
+            padding-top: 20px;
+            overflow: hidden;
+        }
+
+        .segmento span {
+            display: block;
+            transform-origin: 50% 100%;
+            white-space: normal;
+            position: relative;
+            padding: 0 5px;
+        }
+
+        .segmento img {
+            max-width: 50px;
+            max-height: 50px;
+            margin-bottom: 5px;
+            object-fit: contain;
+            z-index: 2;
+        }
+
+        .segmento:nth-child(odd) { background-color: #add8e6; }
+        .segmento:nth-child(even) { background-color: #90ee90; }
+
+        #ponteiro {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 30px solid red;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+
+        #girar-roleta {
+            padding: 15px 30px;
+            font-size: 18px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        #girar-roleta:hover {
+            background-color: #45a049;
+        }
+
+        #girar-roleta:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        #resultado-roleta {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .quest-categoria {
+            background-color: #1a1a1a;
+            border: 1px solid #444;
+            margin: 20px auto;
+            padding: 15px;
+            max-width: 500px;
+            border-radius: 10px;
+            text-align: left;
+        }
+
+        .quest-categoria h3 {
+            color: #ffd700;
+            margin-top: 0;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .quest-item {
+            background-color: #222;
+            border: 1px solid #333;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .quest-item p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        .quest-item button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 8px;
+            align-self: flex-end;
+        }
+
+        .quest-item button:hover {
+            background-color: #0056b3;
+        }
+
+        .quest-item button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
+
+        .quest-item span {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 5px;
+        }
+
+        #printPreview img {
+            max-width: 100px;
+            max-height: 100px;
+            margin: 5px;
+            border: 1px solid #555;
+            border-radius: 5px;
+        }
+
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .modal-content {
+            background-color: #1a1a1a;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+            position: relative;
+        }
+
+        .modal-content h3 {
+            color: #ffd700;
+            margin-bottom: 15px;
+        }
+
+        .modal-content p {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #eee;
+        }
+
+        .modal-content strong {
+            color: #4CAF50;
+        }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #ccc;
+            cursor: pointer;
+        }
+        .modal-close-btn:hover {
+            color: white;
+        }
+
+        #negociar .trade-box {
+            background-color: #222;
+            border: 1px solid #444;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 400px;
+            margin: 20px auto;
+        }
+        #negociar .trade-box input {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #555;
+            background-color: #333;
+            color: white;
+            border-radius: 5px;
+        }
+        #negociar .trade-box button {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        #negociar .trade-result {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        .win { color: #4CAF50; }
+        .lose { color: #f44336; }
+
+        .token-mine-plan {
+            background-color: #222;
+            border: 1px solid #333;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            text-align: left;
+        }
+        .token-mine-plan h4 {
+            color: #ffaa00;
+            margin-top: 0;
+            margin-bottom: 5px;
+        }
+        .token-mine-plan p {
+            margin: 3px 0;
+            font-size: 13px;
+        }
+        .token-mine-plan button {
+            margin-top: 10px;
+            width: auto;
+            padding: 8px 15px;
+            align-self: flex-end;
+        }
+
+        .improve-category-buttons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .improve-category-buttons button {
+            background-color: #444;
+            color: white;
+            border: 1px solid #666;
+            padding: 8px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            flex-grow: 1;
+            min-width: 80px;
+            transition: background-color 0.2s ease;
+        }
+
+        .improve-category-buttons button:hover {
+            background-color: #555;
+        }
+
+        .improve-category-buttons button.active-category {
+            background-color: #2c1042;
+            border-color: #ffd700;
+        }
+
+        .card-section {
+            display: none;
+        }
+        .card-section.active-section {
+            display: block;
+        }
+
+        #minas-info {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background-color: #222;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        #minas-info p {
+            margin: 0;
+            font-size: 14px;
+        }
+        #minas-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-gap: 5px;
+            max-width: 350px;
+            margin: 20px auto;
+        }
+        .mina-cell {
+            width: 100%;
+            padding-bottom: 100%;
+            position: relative;
+            background-color: #444;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .mina-cell:hover {
+            background-color: #555;
+        }
+        .mina-cell.revealed {
+            background-color: #2a2a2a;
+            cursor: default;
+        }
+        .mina-cell.bomb {
+            background-color: #ff4d4d;
+        }
+        .mina-cell-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        #minasControles button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+        #btnIniciarMinas { background-color: #007bff; }
+        #btnColetarMinas { background-color: #4CAF50; }
+        #btnIniciarMinas:disabled, #btnColetarMinas:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        #carteira, #memoryGame {
+            font-family: 'Inter', sans-serif;
+        }
+
+        :root {
+            --bg-color: #121212;
+            --surface-color: #1e1e1e;
+            --primary-color: #8A2BE2;
+            --primary-light: #9d4edd;
+            --text-color: #f0f0f0;
+            --text-secondary: #a0a0a0;
+            --green: #28a745;
+            --red: #dc3545;
+            --border-color: #333;
+        }
+
+        .wallet-container {
+            width: 100%;
+            max-width: 420px;
+            background-color: var(--surface-color);
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            margin: 0 auto;
+        }
+
+        .wallet-header {
+            padding: 24px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+            background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+        }
+
+        .wallet-header .balance-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .wallet-header .total-balance {
+            font-size: 40px;
+            font-weight: 700;
+            margin: 0;
+            color: var(--text-color);
+        }
+
+        .wallet-address {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(0,0,0,0.2);
+            padding: 8px 12px;
+            border-radius: 16px;
+            margin-top: 16px;
+            font-size: 13px;
+            font-family: monospace;
+            gap: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .wallet-address:hover {
+            background-color: rgba(0,0,0,0.4);
+        }
+        .wallet-address span {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .wallet-address svg {
+            width: 16px;
+            height: 16px;
+            fill: var(--text-secondary);
+            flex-shrink: 0;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+        .action-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+        .action-btn.send {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .action-btn.send:hover {
+            background-color: var(--primary-light);
+            transform: translateY(-2px);
+        }
+        .action-btn.receive {
+            background-color: #333;
+            color: var(--text-color);
+        }
+        .action-btn.receive:hover {
+            background-color: #444;
+            transform: translateY(-2px);
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab-link {
+            flex: 1;
+            padding: 16px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            position: relative;
+            border: none;
+            background: none;
+        }
+
+        .tab-link.active {
+            color: var(--primary-color);
+        }
+
+        .tab-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background-color: var(--primary-color);
+            border-radius: 3px 3px 0 0;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 16px 8px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+        .tab-content::-webkit-scrollbar { width: 4px; }
+        .tab-content::-webkit-scrollbar-track { background: var(--surface-color); }
+        .tab-content::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
+
+        .token-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .token-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-radius: 12px;
+            transition: background-color 0.2s;
+            cursor: pointer;
+        }
+        .token-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .token-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 12px;
+            background-color: #333;
+        }
+
+        .token-info {
+            flex-grow: 1;
+        }
+
+        .token-info .name {
+            font-weight: 600;
+        }
+
+        .token-info .ticker {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .token-balance {
+            text-align: right;
+        }
+
+        .token-balance .value-usd {
+            font-weight: 600;
+        }
+
+        .token-balance .amount {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .nft-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            padding: 8px 16px;
+        }
+
+        .nft-card {
+            background-color: #2a2a2a;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .nft-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .nft-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+
+        .nft-card-info {
+            padding: 12px;
+        }
+
+        .nft-card-info .name {
+            font-weight: 600;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .nft-card-info .collection {
+            font-size: 12px;
+            color: var(--primary-light);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content.wallet {
+            background-color: var(--surface-color);
+            padding: 24px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: #333;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-close svg {
+            width: 16px;
+            height: 16px;
+            fill: var(--text-color);
+        }
+
+        .modal h2 {
+            margin-top: 0;
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        
+        #receive-modal .qr-code {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+        #receive-modal .qr-code img {
+            width: 180px;
+            height: 180px;
+            border-radius: 12px;
+            border: 4px solid var(--text-color);
+        }
+        #receive-modal .full-address {
+            background-color: #121212;
+            padding: 16px;
+            border-radius: 8px;
+            word-break: break-all;
+            text-align: center;
+            font-family: monospace;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            background-color: #121212;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-color);
+            font-size: 16px;
+            box-sizing: border-box;  
+        }
+        
+        .modal-content.wallet button.submit-btn {
+            width: 100%;
+            padding: 14px;
+            margin-top: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            background-color: var(--primary-color);
+            color: white;
+            transition: background-color 0.2s ease;
+        }
+        .modal-content.wallet button.submit-btn:hover {
+            background-color: var(--primary-light);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* --- INÍCIO: NOVOS ESTILOS PARA O JOGO DA MEMÓRIA --- */
+        #memoryGame {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #2a003a, #00002a);
+            justify-content: center;
+        }
+        
+        #memoryGame h1 {
+            color: #00bcd4;
+            margin-bottom: 20px;
+            font-size: 2.2em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+            text-align: center;
+        }
+
+        #memoryGame .game-container {
+            background-color: rgba(0, 0, 0, 0.4);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 95vw;
+        }
+
+        #memoryGame .status {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: #e0e0e0;
+            font-weight: 700;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        #memoryGame .timer {
+            font-size: 1.1em;
+            color: #00bcd4;
+            font-weight: 700;
+        }
+
+        #memoryGame .game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 65px);
+            grid-template-rows: repeat(6, 65px);
+            gap: 8px;
+            margin-top: 15px;
+            perspective: 1000px;
+            max-width: 100%;
+            justify-content: center;
+        }
+
+        #memoryGame .card {
+            width: 100%;
+            height: 100%;
+            background-color: #3f005a;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.6s cubic-bezier(0.25, 0.1, 0.25, 1);
+            transform-style: preserve-3d;
+            position: relative;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
+        }
+
+        #memoryGame .card:hover {
+            transform: scale(1.02) rotateY(0deg) rotateX(1deg);
+        }
+
+        #memoryGame .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        #memoryGame .card.matched {
+            opacity: 0.5;
+            cursor: default;
+            pointer-events: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        #memoryGame .card .front,
+        #memoryGame .card .back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        #memoryGame .card .front {
+            background-color: #e0e0e0;
+            transform: rotateY(180deg);
+        }
+
+        #memoryGame .card .front img {
+            width: 85%;
+            height: 85%;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid #6a05ad;
+        }
+
+        #memoryGame .card .back {
+            background: #3f005a;
+            color: #e0e0e0;
+            font-size: 1.8em;
+            font-weight: bold;
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+        }
+
+        #memoryGame button {
+            background-color: #6a05ad;
+            color: #e0e0e0;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 1em;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.6);
+        }
+
+        #memoryGame button:hover {
+            background-color: #5b049d;
+            transform: translateY(-1px);
+        }
+
+        #memoryGame .message {
+            margin-top: 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #00bcd4;
+            text-align: center;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
+        }
+
+        @media (max-width: 768px) {
+            #memoryGame h1 { font-size: 1.8em; }
+            #memoryGame .game-board {
+                grid-template-columns: repeat(4, 60px);
+                grid-template-rows: repeat(6, 60px);
+                gap: 7px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #memoryGame h1 { font-size: 1.5em; }
+            #memoryGame .game-board {
+                grid-template-columns: repeat(4, 55px);
+                grid-template-rows: repeat(6, 55px);
+                gap: 6px;
+            }
+            #memoryGame .card .front img {
+                width: 90%;
+                height: 90%;
+            }
+            #memoryGame .message { font-size: 1.2em; }
+        }
+
+        @media (max-width: 380px) {
+            #memoryGame .game-board {
+                grid-template-columns: repeat(4, 50px);
+                grid-template-rows: repeat(6, 50px);
+                gap: 5px;
+            }
+        }
+        /* --- FIM DOS ESTILOS DO JOGO DA MEMÓRIA --- */
+    </style>
+</head>
+<body onload="initGame()">
+
+<div id="top-bar-container">
+    <div class="header-icons">
+        <div class="top-bar-jogo">
+            <div id="perfil-icon" onclick="abrirAba('perfil')">
+                <svg viewBox="0 0 24 24"><path d="M12,12A5,5,0,1,0,7,7A5,5,0,0,0,12,12Zm0,2A10,10,0,0,0,2,22H22A10,10,0,0,0,12,14Z"/></svg>
+            </div>
+        </div>
+        <div class="hamburger-menu" onclick="toggleMenu()">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </div>
+    </div>
+</div>
+
+<div id="intro">
+    <img src="intro.png" alt="Intro Animada">
+</div>
+
+<div class="top-info" id="topo-abas" style="display: none;">
+    <button class="botao-voltar" onclick="abrirAba('jogo')">Voltar</button>
+</div>
+
+<div id="jogo" class="aba">
+    <div id="progress-mining-container">
+        <button class="barra-progresso-btn" onclick="mostrarInfoMineracao()">
+            <div id="progresso"></div>
+            <span id="progressoTexto"></span>
+        </button>
+        <div class="trading-info">TPH: <span id="autoMineracao">0</span></div>
+    </div>
+
+    <div class="pontuacao-container">
+        <div class="pontuacao">EINSTEINPOINT: <span id="pontuacao">0</span></div>
+        <div id="ingresso-container" title="Compre por 2.5 TON para não pagar taxas de saque!">
+            <img src="ingresso.png" alt="Ingresso de Isenção" id="ingresso-isencao" onclick="comprarIngressoIsencao()">
+            <div id="ingresso-comprado-aviso">Possuído</div>
+        </div>
+    </div>
+    
+    <img src="miner.png" alt="Minerar" class="botao-grande-img" id="minerador">
+
+    <div class="botoes-laterais">
+        <div class="coluna">
+            <div class="botao-lateral" onclick="abrirAba('aba1')"><img src="icone1.png"></div>
+            <div class="botao-lateral" onclick="abrirAba('minas')"><img src="mina.png"></div>
+            <div class="botao-lateral" onclick="abrirAba('aba3')"><img src="icone3.png"></div>
+        </div>
+        <div class="coluna">
+            <div class="botao-lateral" onclick="abrirAba('carteira')"><img src="icone4.png"></div>
+            <div class="botao-lateral" onclick="abrirAba('negociar')"><img src="icone5.png"></div>
+            <div class="botao-lateral" onclick="abrirAba('memoryGame')"><img src="icone6.png"></div>
+        </div>
+    </div>
+
+    <div class="menu-inferior">
+        <div onclick="abrirAba('jogo')"><img src="casa.png"><span>Home</span></div>
+        <div onclick="abrirAba('upgrade')"><img src="cartaos.png"><span>Improve</span></div>
+        <div onclick="abrirAba('roleta')"><img src="pres.png"><span>Recompensa</span></div>
+        <div onclick="abrirAba('quests')"><img src="tarefa.png"><span>Quests</span></div>
+        <div onclick="abrirAba('friends')"><img src="friends.png"><span>Friends</span></div>
+    </div>
+</div>
+
+<div id="minas" class="aba">
+    <h2>Campo Minado</h2>
+    <p>Escolha sua aposta e a dificuldade. Quanto mais bombas, maior o multiplicador de ganhos! Colete a qualquer momento.</p>
+    
+    <div id="minas-config" style="background-color: #222; padding: 15px; border-radius: 8px; max-width: 400px; margin: 15px auto; display: flex; justify-content: space-around; align-items: center; gap: 10px;">
+        <div>
+            <label for="minasApostaInput" style="font-size: 14px; display: block; margin-bottom: 5px;">Sua Aposta (EP):</label>
+            <input type="number" id="minasApostaInput" value="500" min="500" step="100" style="width: 100px; padding: 8px; border-radius: 5px; border: 1px solid #555; background-color: #333; color: white;">
+        </div>
+        <div>
+            <label for="minasDificuldadeSelect" style="font-size: 14px; display: block; margin-bottom: 5px;">Dificuldade:</label>
+            <select id="minasDificuldadeSelect" style="padding: 8px; border-radius: 5px; border: 1px solid #555; background-color: #333; color: white;"></select>
+        </div>
+    </div>
+
+    <div id="minas-info">
+        <p>Multiplicador: <strong id="minasMultiplicador">1.0x</strong></p>
+        <p>Ganhos: <strong id="minasGanhos">0</strong> EP</p>
+    </div>
+
+    <div id="minasControles" style="display: flex; justify-content: center; gap: 10px; margin-bottom: 20px;">
+        <button id="btnIniciarMinas" onclick="iniciarJogoMinas()">Iniciar Jogo</button>
+        <button id="btnColetarMinas" onclick="coletarPontosMinas()" disabled>Coletar Pontos</button>
+    </div>
+
+    <div id="minas-grid">
+    </div>
+    <p id="minasStatus" style="margin-top: 20px; font-weight: bold;"></p>
+</div>
+
+
+<div id="upgrade" class="aba">
+    <h2>Cartões de Melhoria</h2>
+
+    <div class="improve-category-buttons">
+        <button onclick="showCardCategory('baseCards')" id="btnBaseCards" class="active-category">Base</button>
+        <button onclick="showCardCategory('energyCards')" id="btnEnergyCards">Energia</button>
+        <button onclick="showCardCategory('speedCards')" id="btnSpeedCards">Velocidade</button>
+        <button onclick="showCardCategory('luckCards')" id="btnLuckCards">Sorte</button>
+        <button onclick="showCardCategory('efficiencyCards')" id="btnEfficiencyCards">Eficiência</button>
+        <button onclick="showCardCategory('automationCards')" id="btnAutomationCards">Automação</button>
+    </div>
+
+    <div id="baseCards" class="card-section active-section">
+        <div id="cartoesContainer"></div>
+    </div>
+
+    <div id="energyCards" class="card-section">
+        <h3>Cartões de Energia</h3>
+        <p>Aumente sua capacidade máxima de cliques ou recupere energia mais rápido.</p>
+        <div class="cartao">
+            <img src="energy_card1.png" alt="Cartão de Energia 1" />
+            <p><strong>Aumento de Bateria Pequeno</strong></p>
+            <p>Preço: 2000 EINSTEINPOINT</p>
+            <p>Efeito: +50 cliques de capacidade</p>
+            <button>Comprar (simulado)</button>
+        </div>
+        <div class="cartao">
+            <img src="energy_card2.png" alt="Cartão de Energia 2" />
+            <p><strong>Recarga Rápida Nível 1</strong></p>
+            <p>Preço: 5000 EINSTEINPOINT</p>
+            <p>Efeito: +10% velocidade de recarga</p>
+            <button>Comprar (simulado)</button>
+        </div>
+    </div>
+
+    <div id="speedCards" class="card-section">
+        <h3>Cartões de Velocidade</h3>
+        <p>Aumente sua mineração por hora ou a velocidade de certas ações.</p>
+        <div class="cartao">
+            <img src="speed_card1.png" alt="Cartão de Velocidade 1" />
+            <p><strong>Motor Eficiente</strong></p>
+            <p>Preço: 3000 EINSTEINPOINT</p>
+            <p>Efeito: +50 mineração/hora</p>
+            <button>Comprar (simulado)</button>
+        </div>
+        <div class="cartao">
+            <img src="speed_card2.png" alt="Cartão de Velocidade 2" />
+            <p><strong>Anúncios Turbo</strong></p>
+            <p>Preço: 1 TON</p>
+            <p>Efeito: Reduz tempo de anúncios em 1s</p>
+            <button>Comprar (simulado)</button>
+        </div>
+    </div>
+
+    <div id="luckCards" class="card-section">
+        <h3>Cartões de Sorte</h3>
+        <p>Aumente suas chances na roleta ou encontre bônus raros.</p>
+        <div class="cartao">
+            <img src="luck_card1.png" alt="Cartão de Sorte 1" />
+            <p><strong>Amuleto da Sorte</strong></p>
+            <p>Preço: 10000 EINSTEINPOINT</p>
+            <p>Efeito: +0.5% chance de prêmio raro na roleta</p>
+            <button>Comprar (simulado)</button>
+        </div>
+        <div class="cartao">
+            <img src="luck_card2.png" alt="Cartão de Sorte 2" />
+            <p><strong>Detector de Bônus</strong></p>
+            <p>Preço: 2 TON</p>
+            <p>Efeito: Chance de bônus de pontos ao minerar idle</p>
+            <button>Comprar (simulado)</button>
+        </div>
+    </div>
+
+    <div id="efficiencyCards" class="card-section">
+        <h3>Cartões de Eficiência (Novo!)</h3>
+        <p>Reduza o custo de outras melhorias.</p>
+        <div class="cartao">
+            <img src="efficiency_card1.png" alt="Cartão de Eficiência 1" />
+            <p><strong>Calculadora Quântica</strong></p>
+            <p>Preço: 25000 EINSTEINPOINT</p>
+            <p>Efeito: Reduz o preço de Cartões Base em 5%</p>
+            <button>Comprar (simulado)</button>
+        </div>
+        <div class="cartao">
+            <img src="efficiency_card2.png" alt="Cartão de Eficiência 2" />
+            <p><strong>Contrato Inteligente</strong></p>
+            <p>Preço: 5 TON</p>
+            <p>Efeito: Reduz o custo em TON de cartões especiais em 10%</p>
+            <button>Comprar (simulado)</button>
+        </div>
+    </div>
+
+    <div id="automationCards" class="card-section">
+        <h3>Cartões de Automação (Novo!)</h3>
+        <p>Deixe o jogo trabalhar por você.</p>
+        <div class="cartao">
+            <img src="automation_card1.png" alt="Cartão de Automação 1" />
+            <p><strong>Auto-Clicker Básico</strong></p>
+            <p>Preço: 50000 EINSTEINPOINT</p>
+            <p>Efeito: Realiza 1 clique automático a cada 10 segundos</p>
+            <button>Comprar (simulado)</button>
+        </div>
+        <div class="cartao">
+            <img src="automation_card2.png" alt="Cartão de Automação 2" />
+            <p><strong>Coletor de Bônus</strong></p>
+            <p>Preço: 10 TON</p>
+            <p>Efeito: Coleta automaticamente bônus raros que aparecem</p>
+            <button>Comprar (simulado)</button>
+        </div>
+    </div>
+
+</div>
+
+<div id="aba1" class="aba">
+    <h2>Loja de NFTs</h2>
+    
+    <div class="section" id="section1">
+        <h3>Seção 1 - NFTs Comuns</h3>
+        <div class="nft-item" style="border: 1px solid #ccc; margin-bottom: 20px; padding: 10px; border-radius: 10px;">
+            <img src="nft1.jpg" alt="NFT 1" style="width:100%; border-radius: 10px;">
+            <p><strong>NFT Comum 1</strong></p>
+            <p>Preço: 2 TON</p>
+            <button onclick="comprarNFT('Comum 1', 2, 'TON')">Comprar com TON</button>
+        </div>
+        <div class="nft-item" style="border: 1px solid #ccc; margin-bottom: 20px; padding: 10px; border-radius: 10px;">
+            <img src="nft2.jpg" alt="NFT 2" style="width:100%; border-radius: 10px;">
+            <p><strong>NFT Comum 2</strong></p>
+            <p>Preço: 2.5 TON</p>
+            <button onclick="comprarNFT('Comum 2', 2.5, 'TON')">Comprar com TON</button>
+        </div>
+    </div>
+
+    <div class="section" id="section2">
+        <h3>Seção 2 - NFTs Raros</h3>
+        <div class="nft-item" style="border: 1px solid #ccc; margin-bottom: 20px; padding: 10px; border-radius: 10px;">
+            <img src="nft3.jpg" alt="NFT 3" style="width:100%; border-radius: 10px;">
+            <p><strong>NFT Raro 1</strong></p>
+            <p>Preço: 4 TON</p>
+            <button onclick="comprarNFT('Raro 1', 4, 'TON')">Comprar com TON</button>
+        </div>
+    </div>
+
+    <div class="section" id="section3">
+        <h3>Seção 3 - NFTs Épicos</h3>
+        <div class="nft-item" style="border: 1px solid #ccc; margin-bottom: 20px; padding: 10px; border-radius: 10px;">
+            <img src="nft4.jpg" alt="NFT 4" style="width:100%; border-radius: 10px;">
+            <p><strong>NFT Épico 1</strong></p>
+            <p>Preço: 6 TON</p>
+            <button onclick="comprarNFT('Épico 1', 6, 'TON')">Comprar com TON</button>
+        </div>
+    </div>
+
+    <div class="section" id="section4">
+        <h3>Seção 4 - NFTs Lendários</h3>
+        <div class="nft-item" style="border: 1px solid #ccc; margin-bottom: 20px; padding: 10px; border-radius: 10px;">
+            <img src="nft5.jpg" alt="NFT 5" style="width:100%; border-radius: 10px;">
+            <p><strong>NFT Lendário 1</strong></p>
+            <p>Preço: 10 TON</p>
+            <button onclick="comprarNFT('Lendário 1', 10, 'TON')">Comprar com TON</button>
+        </div>
+    </div>
+</div>
+
+<div id="aba2" class="aba">
+    <h2>Configurações</h2>
+    <p>Altere suas preferências abaixo:</p>
+    <button onclick="resetarProgresso()">Resetar Progresso</button>
+    <br><br>
+    <label>
+        <input type="checkbox" id="modoEscuro" checked onchange="alternarModo()"> Modo Escuro
+    </label>
+</div>
+
+<div id="aba3" class="aba">
+    <h2>Conquistas</h2>
+    <ul style="list-style: none; padding: 0;">
+        <li>🏆 10 cliques - <span id="c1">Bloqueado</span></li>
+        <li>🏆 1.000 pontos - <span id="c2">Bloqueado</span></li>
+        <li>🏆 10.000 pontos - <span id="c3">Desbloqueado</span></li>
+    </ul>
+
+    <div class="quest-categoria">
+        <h3>✨ Upgrades de Toque</h3>
+        <p>Pontos por Toque Atual: <strong id="pontosPorToque">1</strong></p>
+        <div id="upgradesToqueContainer">
+        </div>
+    </div>
+</div>
+
+<style>
+    .modo-claro {
+        background-color: #fff !important;
+        color: #000 !important;
+    }
+</style>
+
+<div id="roleta" class="aba">
+    <h2>Recompensas: Gire a Roleta!</h2>
+    <p>Custo para girar: 500 EINSTEINPOINT</p>
+    <div id="roleta-container">
+        <div id="roleta-roda"></div>
+        <div id="ponteiro"></div>
+    </div>
+    <button id="girar-roleta" onclick="girarRoleta()">Girar Roleta</button>
+    <p id="resultado-roleta"></p>
+</div>
+
+<div id="quests" class="aba">
+    <h2>Suas Missões</h2>
+
+    <div class="quest-categoria">
+        <h3>🚀 Missões Diárias</h3>
+        <div class="quest-item">
+            <p>Minere pontos assistindo anúncios (ilimitado).</p>
+            <p>Passe Livre: <strong id="adPassStatus">INATIVO</strong></p>
+            <button id="buyAdPassBtn" onclick="comprarAdPass()">Comprar Passe (2.5 TON)</button>
+            <button id="iniciarAdIlimitadoBtn" onclick="iniciarAdIlimitado()">Assistir Anúncio</button>
+            <span id="ad_ilimitado_status"></span>
+        </div>
+        <div class="quest-item">
+            <p>Assista a um anúncio e ganhe <strong>1 Giro Grátis na Roleta</strong> (Reset Diário).</p>
+            <button onclick="iniciarAdContador('ad30_free_spin', 30)">Assistir Anúncio</button>
+            <span id="ad30_free_spin_progress">0/30 assistidos hoje</span>
+            <span id="ad30_free_spin_status"></span>
+        </div>
+    </div>
+
+    <div class="quest-categoria">
+        <h3>💬 Missões do Telegram</h3>
+        <div class="quest-item">
+            <p>Entre no nosso canal do Telegram para ganhar <strong>250 EINSTEINPOINT</strong>.</p>
+            <button onclick="abrirVideo('telegram_channel', 'https://t.me/EINSTEINGAMEE', 250)">Entrar no Canal</button>
+            <span id="telegram_channel_status"></span>
+        </div>
+        <div class="quest-item">
+            <p>Compartilhe o jogo com amigos no Telegram para ganhar <strong>300 EINSTEINPOINT</strong>.</p>
+            <button onclick="compartilharNoTelegram(300)">Compartilhar no Telegram</button>
+            <span id="telegram_share_status"></span>
+        </div>
+    </div>
+
+    <div class="quest-categoria">
+        <h3>📸 Missões de Validação</h3>
+        <div class="quest-item">
+            <p>Complete uma tarefa (ex: seguir nas redes sociais) e envie um print para ganhar <strong>500 EINSTEINPOINT</strong>.</p>
+            <input type="file" id="printUpload" accept="image/*" multiple onchange="mostrarPreview()">
+            <div id="printPreview" style="display: none; margin-top: 10px;"></div>
+            <button onclick="enviarPrint()">Enviar Print</button>
+            <span id="print_upload_status"></span>
+        </div>
+    </div>
+
+</div>
+
+<div id="friends" class="aba">
+    <h2>Seus Amigos</h2>
+    <p>Convide seus amigos e ganhe recompensas!</p>
+    <p>Amigos convidados: <strong id="amigosConvidadosCount">0</strong></p>
+
+    <div class="quest-categoria">
+        <h3>🎁 Recompensas por Convite</h3>
+        <div id="recompensasAmigosContainer">
+        </div>
+    </div>
+
+    <div class="quest-categoria">
+        <h3>🔗 Seu Link de Convite</h3>
+        <p>Compartilhe este link para convidar amigos e acumular recompensas:</p>
+        <div style="background-color: #333; padding: 10px; border-radius: 5px; margin: 10px 0; word-break: break-all;">
+            <span id="inviteLink">Carregando...</span>
+        </div>
+        <button onclick="copiarLinkConvite()">Copiar Link</button>
+        <p id="copyStatus" style="font-size: 12px; color: #aaa; margin-top: 5px;"></p>
+    </div>
+</div>
+
+<div id="carteira" class="aba">
+    <div class="wallet-container">
+        <header class="wallet-header">
+            <p class="balance-label">Saldo Total (Simulado)</p>
+            <h1 class="total-balance" id="walletTotalBalance">R$ 0,00</h1>
+            
+            <div class="wallet-address" id="copy-address-btn" title="Copiar Endereço">
+                <svg viewBox="0 0 24 24"><path d="M20 4H4C2.9 4 2 4.9 2 6v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8h16v10zm-12-9c0-.55.45-1 1-1h6c.55 0 1 .45 1 1s-.45 1-1 1h-6c-.55 0-1-.45-1-1z"/></svg>
+                <span id="address-text">EQA...B12CdeFG34</span>
+                <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            </div>
+
+            <div class="action-buttons">
+                <button class="action-btn send" onclick="openModal('send-modal')">
+                    <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" fill="white"/></svg>
+                    Enviar
+                </button>
+                <button class="action-btn receive" onclick="openModal('receive-modal')">
+                    <svg viewBox="0 0 24 24"><path d="M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z" fill="white"/></svg>
+                    Receber
+                </button>
+            </div>
+        </header>
+
+        <nav class="tabs">
+            <button class="tab-link active" data-tab="tokens">Tokens</button>
+            <button class="tab-link" data-tab="nfts">NFTs</button>
+        </nav>
+
+        <main class="content-wrapper">
+            <div id="tokens" class="tab-content active">
+                <ul class="token-list">
+                    <li class="token-item">
+                        <img src="https://ton.org/download/ton_symbol.png" alt="TON" class="token-icon">
+                        <div class="token-info">
+                            <div class="name">Toncoin</div>
+                            <div class="ticker">TON</div>
+                        </div>
+                        <div class="token-balance">
+                            <div class="value-usd" id="walletTonValue">R$ 0,00</div>
+                            <div class="amount" id="walletTonAmount">0.00 TON</div>
+                        </div>
+                    </li>
+                    <li class="token-item">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0NSIgZmlsbD0iIzRFNUE5MyIvPjx0ZXh0IHg9IjUwJSIgeT0iNjAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSJ3aGl0ZSIgZm9udC1zaXplPSI0MCIgZm9udC1mYW1pbHk9IkFyaWFsIj5FPC90ZXh0Pjwvc3ZnPg==" alt="E" class="token-icon">
+                        <div class="token-info">
+                            <div class="name">Einstein Token</div>
+                            <div class="ticker">EINSTEIN</div>
+                        </div>
+                        <div class="token-balance">
+                            <div class="value-usd" id="walletEinsteinValue">Pontos do Jogo</div>
+                            <div class="amount" id="walletEinsteinAmount">0 EP</div>
+                        </div>
+                    </li>
+                    <li class="token-item">
+                        <img src="https://s2.coinmarketcap.com/static/img/coins/64x64/825.png" alt="USDT" class="token-icon">
+                        <div class="token-info">
+                            <div class="name">Tether</div>
+                            <div class="ticker">USDT</div>
+                        </div>
+                        <div class="token-balance">
+                            <div class="value-usd">R$ 0,00</div>
+                            <div class="amount">0.00 USDT</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div id="nfts" class="tab-content">
+                <div class="nft-grid">
+                    <div class="nft-card">
+                        <img src="https://picsum.photos/seed/nft1/300/300" alt="NFT 1">
+                        <div class="nft-card-info">
+                            <div class="name">Cartão Beta #123</div>
+                            <div class="collection">Einstein Coleção</div>
+                        </div>
+                    </div>
+                    <div class="nft-card">
+                        <img src="https://picsum.photos/seed/nft2/300/300" alt="NFT 2">
+                        <div class="nft-card-info">
+                            <div class="name">Ingresso Isenção</div>
+                            <div class="collection">Itens Especiais</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="quest-categoria" style="max-width: 420px; margin: 30px auto;">
+        <h3>💎 Mineração de Tokens (Planos)</h3>
+        <p>Plano Ativo: <strong id="tokenMinePlanStatus">Nenhum</strong></p>
+        <p>Tokens Pendentes: <strong id="tokenMinePending">0.00</strong></p>
+        <p>Tempo Restante: <strong id="tokenMineTimeRemaining">0 dias</strong></p>
+        <button id="claimTokensBtn" onclick="coletarTokensMinerados()">Coletar Tokens</button>
+        <p id="claimTokensMessage" style="font-size: 12px; color: #aaa;"></p>
+
+        <div id="tokenMiningPlansContainer" style="margin-top: 20px;">
+        </div>
+    </div>
+
+    <div id="receive-modal" class="modal">
+        <div class="modal-content wallet">
+            <button class="modal-close" onclick="closeModal('receive-modal')">
+                <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+            </button>
+            <h2>Receber</h2>
+            <div class="qr-code">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB12B12CdeFG34" alt="QR Code">
+            </div>
+            <p style="text-align:center; color: var(--text-secondary);">Envie apenas tokens da rede TON para este endereço.</p>
+            <div class="full-address">EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB12B12CdeFG34</div>
+        </div>
+    </div>
+    
+    <div id="send-modal" class="modal">
+        <div class="modal-content wallet">
+            <button class="modal-close" onclick="closeModal('send-modal')">
+                <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+            </button>
+            <h2>Enviar</h2>
+            <form onsubmit="event.preventDefault(); alert('Envio simulado!'); closeModal('send-modal');">
+                <div class="form-group">
+                    <label for="recipient">Endereço do Destinatário</label>
+                    <input type="text" id="recipient" placeholder="Cole o endereço aqui" required>
+                </div>
+                <div class="form-group">
+                    <label for="asset">Ativo</label>
+                    <select id="asset">
+                        <option value="ton">Toncoin (TON)</option>
+                        <option value="einstein">Einstein Token (EINSTEIN)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="amount">Quantidade</label>
+                    <input type="number" id="amount" placeholder="0.00" required step="any">
+                </div>
+                <p style="font-size: 12px; color: var(--text-secondary);">Taxa de rede estimada: 0.005 TON</p>
+                <button type="submit" class="submit-btn">Enviar</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="negociar" class="aba">
+    <h2>Negociar Tokens</h2>
+    <p>Tente a sorte e negocie seus tokens! Ganhe ou perca.</p>
+    <div class="trade-box">
+        <p>Seus Tokens Atuais: <strong id="tradeMeusTokens">0</strong></p>
+        <label for="tradeAmount">Quantidade a Negociar:</label>
+        <input type="number" id="tradeAmount" min="1" value="10">
+        <button onclick="executarTrade()">Negociar!</button>
+        <p id="tradeResult" class="trade-result"></p>
+        <p style="font-size: 12px; color: #888; margin-top: 10px;">(Custo: X tokens. Resultado aleatório: 50% chance de ganhar, 50% de perder.)</p>
+    </div>
+</div>
+
+<div id="memoryGame" class="aba">
+    <h1>Encontre as NFTs Iguais</h1>
+
+    <div class="game-container">
+        <div class="status">
+            <span>Pares Encontrados: <span id="matched-pairs">0</span> / <span id="total-pairs">0</span></span>
+            <span class="timer">Tempo: <span id="time-left">30</span>s</span>
+        </div>
+        <div class="game-board" id="game-board"></div>
+        <button id="reset-button-memory">Reiniciar Jogo</button>
+        <div class="message" id="game-message"></div>
+    </div>
+</div>
+<div id="menu-backdrop" onclick="toggleMenu()"></div>
+<div id="menu-lateral">
+    <div>
+        <div class="menu-header">
+            <h2>Menu</h2>
+            <button class="fechar-menu-btn" onclick="toggleMenu()">×</button>
+        </div>
+        
+        <div class="menu-item" onclick="window.open('whitepaper.pdf', '_blank'); toggleMenu();">
+            📄 Whitepaper
+        </div>
+        <div class="menu-item" onclick="abrirAba('tutorial'); toggleMenu();">
+            ▶️ Tutorial
+        </div>
+        <div class="menu-item" onclick="abrirAba('aba2'); toggleMenu();">
+            ⚙️ Configurações
+        </div>
+    </div>
+    <div class="social-links">
+        <a href="https://youtube.com" target="_blank" class="social-btn">
+            <svg viewBox="0 0 24 24"><path d="M10,15L15.19,12L10,9V15M21.56,7.17C21.69,7.64 21.78,8.27 21.84,9.07C21.91,9.87 21.94,10.56 21.94,11.16L22,12C22,14.19 21.84,15.8 21.56,16.83C21.31,17.73 20.73,18.31 19.83,18.56C19.36,18.69 18.73,18.78 17.93,18.84C17.13,18.91 16.44,18.94 15.84,18.94L15,19C12.81,19 11.2,18.84 10.17,18.56C9.27,18.31 8.69,17.73 8.44,16.83C8.31,16.36 8.22,15.73 8.16,14.93C8.09,14.13 8.06,13.44 8.06,12.84L8,12C8,9.81 8.16,8.2 8.44,7.17C8.69,6.27 9.27,5.69 10.17,5.44C11.2,5.16 12.81,5 15,5L15.84,5.06C16.44,5.06 17.13,5.09 17.93,5.16C18.73,5.22 19.36,5.31 19.83,5.44C20.73,5.69 21.31,6.27 21.56,7.17Z" /></svg>
+        </a>
+        <a href="https://tiktok.com" target="_blank" class="social-btn">
+            <svg viewBox="0 0 24 24"><path d="M12.53,2.23C12,2.06 11.46,2 10.9,2C7.38,2 4.47,4.91 4.47,8.43V15.5C4.47,16.33 4.14,17.09 3.58,17.65C3,18.21 2.24,18.54 1.4,18.54V16.73C1.86,16.73 2.29,16.55 2.61,16.23C2.93,15.91 3.1,15.48 3.1,15.02V8.43C3.1,4.24 6.6,0.74 10.78,0.74C11.3,0.74 11.83,0.81 12.32,0.95L12.53,2.23M18.89,8.55C18.89,9.53 18.5,10.43 17.85,11.08C17.2,11.73 16.3,12.12 15.32,12.12C14.34,12.12 13.44,11.73 12.79,11.08C12.14,10.43 11.75,9.53 11.75,8.55C11.75,7.57 12.14,6.67 12.79,6.02C13.44,5.37 14.34,4.98 15.32,4.98C16.3,4.98 17.2,5.37 17.85,6.02C18.5,6.67 18.89,7.57 18.89,8.55M22.18,9.86V9.67C22.18,8.22 21.63,6.86 20.66,5.89C19.69,4.92 18.33,4.37 16.88,4.37C16.6,4.37 16.33,4.39 16.05,4.44L15.96,5.77C16.27,5.71 16.58,5.69 16.88,5.69C17.9,5.69 18.82,6.07 19.49,6.74C20.16,7.41 20.54,8.33 20.54,9.35V15.7C20.54,16.14 20.37,16.57 20.06,16.89C19.74,17.21 19.31,17.38 18.87,17.38H15.32V19.11H18.87C19.95,19.11 20.94,18.68 21.66,17.96C22.38,17.24 22.81,16.25 22.81,15.17V10.23L22.18,9.86Z" /></svg>
+        </a>
+        <a href="https://x.com" target="_blank" class="social-btn">
+            <svg viewBox="0 0 24 24"><path d="M14.2,2.05L15.32,1H12.91L9.43,5.43L6.16,1H1L7.8,10.32L1,23H3.4L7.17,17.83L10.74,23H17L9.89,12.8L17,1H14.2V2.05M13.25,19.64L5.1,3.42H7.66L15.42,20.58H12.87L13.25,19.64Z" /></svg>
+        </a>
+    </div>
+</div>
+
+<div id="perfil" class="aba">
+    <h2>Perfil do Usuário</h2>
+    <div class="quest-categoria">
+        <h3>Minhas Informações</h3>
+        <p>ID de Usuário: <strong id="userIdDisplay">Carregando...</strong></p>
+        <p>Nível Atual: <strong id="userLevelDisplay">Carregando...</strong></p>
+    </div>
+    
+    <div class="delete-account-section">
+        <p style="font-size: 12px; color: #aaa;">Cuidado: esta ação é irreversível e irá apagar todo o seu progresso no jogo.</p>
+        <button class="delete-btn" onclick="resetarProgresso()">Excluir Conta</button>
+    </div>
+</div>
+
+<div id="tutorial" class="aba">
+    <h2>Como Usar o App</h2>
+    <p>Assista aos vídeos abaixo para aprender tudo sobre o EinsteinGame!</p>
+
+    <div class="quest-categoria">
+        <h3>Vídeos Essenciais</h3>
+        <div class="quest-item">
+            <p><strong>1. Primeiros Passos e Mineração</strong></p>
+            <button onclick="window.open('https://youtube.com/link1', '_blank')">Assistir no YouTube</button>
+        </div>
+        <div class="quest-item">
+            <p><strong>2. Usando a Loja e Melhorias (Improve)</strong></p>
+            <button onclick="window.open('https://youtube.com/link2', '_blank')">Assistir no YouTube</button>
+        </div>
+        <div class="quest-item">
+            <p><strong>3. Entendendo as Recompensas e a Roleta</strong></p>
+            <button onclick="window.open('https://youtube.com/link3', '_blank')">Assistir no YouTube</button>
+        </div>
+        <div class="quest-item">
+            <p><strong>4. Como Funcionam as Quests e Amigos</strong></p>
+            <button onclick="window.open('https://youtube.com/link4', '_blank')">Assistir no YouTube</button>
+        </div>
+        <div class="quest-item">
+            <p><strong>5. Dicas Avançadas e Estratégias</strong></p>
+            <button onclick="window.open('https://youtube.com/link5', '_blank')">Assistir no YouTube</button>
+        </div>
+    </div>
+</div>
+<div id="niveis" class="aba">
+    <h2>Todos os Níveis</h2>
+    <div class="ranking" id="rankingNiveis"></div>
+</div>
+
+<div id="mineracaoInfoModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-content">
+        <button class="modal-close-btn" onclick="fecharInfoMineracao()">×</button>
+        <h3>Informações de Mineração</h3>
+        <p>Pontos acumulados (Você): <strong id="meusPontosModal">0</strong></p>
+        <p>Pontos da comunidade (simulado): <strong id="comunidadePontosModal">0</strong></p>
+        <p>Total de tokens convertidos: <strong id="tokensConvertidosModal">0</strong></p>
+        <p style="font-size: 12px; color: #888;">(Conversão: 1000 EINSTEINPOINT = 1 TOKEN)</p>
+    </div>
+</div>
+
+<div style="display:none" id="config"></div>
+
+<script>
+    // Início do Bloco Completo de JavaScript
+
+    let isFirstTimeGameLoad = localStorage.getItem('isFirstTimeGameLoad') === null;
+    let pontos = parseFloat(localStorage.getItem('pontos')) || 0;
+    let autoMineracao = parseFloat(localStorage.getItem('autoMineracao')) || 0;
+    let pontosPorToque = parseInt(localStorage.getItem('pontosPorToque')) || 1;
+    let temIngressoIsencao = localStorage.getItem('temIngressoIsencao') === 'true';
+    
+    if (isFirstTimeGameLoad) {
+        pontos = 0;
+        autoMineracao = 0;
+        pontosPorToque = 1;
+        temIngressoIsencao = false;
+        localStorage.setItem('girosGratis', 0);
+        localStorage.setItem('ads30FreeSpinProgress', JSON.stringify({ count: 0, lastResetDate: null, collected: false }));
+        localStorage.setItem('amigosConvidados', 0);
+        localStorage.setItem('recompensasAmigosColetadas', JSON.stringify({}));
+        localStorage.setItem('meusTokens', 0);
+        localStorage.setItem('pontosComunidade', 100000);
+        localStorage.setItem('upgradeToqueNivel', 0);
+        localStorage.setItem('upgradePromoToqueComprado', 'false');
+        localStorage.setItem('mineracaoDuplicadaAtiva', 'false');
+        localStorage.setItem('tempoFimDuplicacao', 0);
+        localStorage.setItem('adPassComprado', 'false');
+        localStorage.setItem('tokenMiningPlanActive', JSON.stringify({ active: false, planId: null, tokensPerHour: 0, startTime: 0, endTime: 0, lastClaimTime: 0, pendingTokens: 0 }));
+        localStorage.setItem('questTelegramShare', 'false');
+        localStorage.setItem('temIngressoIsencao', 'false');
+        localStorage.setItem('mineracaoTriplicadaAtiva', 'false');
+        localStorage.setItem('tempoFimTriplicacao', 0);
+        localStorage.setItem('bonusCliquesAtivo', 'false');
+        localStorage.setItem('cliquesBonusRestantes', 0);
+        localStorage.setItem('pontosPorToqueOriginal', pontosPorToque);
+
+        const keysToRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key.startsWith('cardPrice_')) {
+                keysToRemove.push(key);
+            }
+        }
+        for (const key of keysToRemove) {
+            localStorage.removeItem(key);
+        }
+    }
+    
+    let ultimoGiroRoleta = parseInt(localStorage.getItem('ultimoGiroRoleta')) || 0;
+    let dailyFreeSpin = JSON.parse(localStorage.getItem('dailyFreeSpin')) || { usedToday: false, lastUseDate: null };
+    let videosAssistidos = JSON.parse(localStorage.getItem('videosAssistidos')) || {};
+    let questTelegramShare = localStorage.getItem('questTelegramShare') === 'true';
+    let printsEnviados = JSON.parse(localStorage.getItem('printsEnviados')) || {};
+    let girosGratis = parseInt(localStorage.getItem('girosGratis')) || 0;
+    let ads30FreeSpinProgress = JSON.parse(localStorage.getItem('ads30FreeSpinProgress')) || { count: 0, lastResetDate: null, collected: false };
+    let amigosConvidados = parseInt(localStorage.getItem('amigosConvidados')) || 0;
+    let recompensasAmigosColetadas = JSON.parse(localStorage.getItem('recompensasAmigosColetadas')) || {};
+    let meusTokens = parseFloat(localStorage.getItem('meusTokens')) || 0;
+    let pontosComunidade = parseFloat(localStorage.getItem('pontosComunidade')) || 100000;
+    let upgradeToqueNivel = parseInt(localStorage.getItem('upgradeToqueNivel')) || 0;
+    let upgradePromoToqueComprado = localStorage.getItem('upgradePromoToqueComprado') === 'true';
+    let adPassComprado = localStorage.getItem('adPassComprado') === 'true';
+    let tokenMiningPlanActive = JSON.parse(localStorage.getItem('tokenMiningPlanActive')) || {
+        active: false, planId: null, tokensPerHour: 0, startTime: 0, endTime: 0, lastClaimTime: 0, pendingTokens: 0
+    };
+
+    let mineracaoDuplicadaAtiva = localStorage.getItem('mineracaoDuplicadaAtiva') === 'true' || false;
+    let tempoFimDuplicacao = parseInt(localStorage.getItem('tempoFimDuplicacao')) || 0;
+    let mineracaoTriplicadaAtiva = localStorage.getItem('mineracaoTriplicadaAtiva') === 'true' || false;
+    let tempoFimTriplicacao = parseInt(localStorage.getItem('tempoFimTriplicacao')) || 0;
+    let bonusCliquesAtivo = localStorage.getItem('bonusCliquesAtivo') === 'true' || false;
+    let cliquesBonusRestantes = parseInt(localStorage.getItem('cliquesBonusRestantes')) || 0;
+    let pontosPorToqueOriginal = parseInt(localStorage.getItem('pontosPorToqueOriginal')) || 1;
+
+
+    const tokenMiningPlans = [
+        { id: 'basico', name: 'Plano Básico', cost: 2.5, tokensPerHour: 1 / 24, durationDays: 40 },
+        { id: 'medio', name: 'Plano Médio', cost: 4.5, tokensPerHour: 3 / 80, durationDays: 80 },
+        { id: 'avancado', name: 'Plano Avançado', cost: 8, tokensPerHour: 8 / 140, durationDays: 140 },
+        { id: 'ultra', cost: 15, tokensPerHour: 15 / 200, durationDays: 200 }
+    ];
+
+    const upgradesToqueEP = [
+        { nivel: 0, b_por_toque: 1, custo: 0, tipo: 'EP' }, { nivel: 1, b_por_toque: 2, custo: 500, tipo: 'EP' }, { nivel: 2, b_por_toque: 3, custo: 1000, tipo: 'EP' }, { nivel: 3, b_por_toque: 4, custo: 2000, tipo: 'EP' }, { nivel: 4, b_por_toque: 5, custo: 4000, tipo: 'EP' }, { nivel: 5, b_por_toque: 6, custo: 8000, tipo: 'EP' }, { nivel: 6, b_por_toque: 7, custo: 16000, tipo: 'EP' }, { nivel: 7, b_por_toque: 8, custo: 32000, tipo: 'EP' }, { nivel: 8, b_por_toque: 9, custo: 64000, tipo: 'EP' }, { nivel: 9, b_por_toque: 10, custo: 128000, tipo: 'EP' }
+    ];
+
+    const upgradesToqueToken = [
+        { nivel: 10, b_por_toque: 50, custo: 1, tipo: 'TOKEN', nomeCusto: 'TON' }, { nivel: 11, b_por_toque: 100, custo: 2, tipo: 'TOKEN', nomeCusto: 'TON' }, { nivel: 12, b_por_toque: 200, custo: 4, tipo: 'TOKEN', nomeCusto: 'TON' }, { nivel: 13, b_por_toque: 300, custo: 8, tipo: 'TOKEN', nomeCusto: 'TON' }, { nivel: 14, b_por_toque: 400, custo: 16, tipo: 'TOKEN', nomeCusto: 'TON' }, { nivel: 15, b_por_toque: 500, custo: 32, tipo: 'TOKEN', nomeCusto: 'TON' },
+    ];
+
+    const upgradeToquePromocao = { nivel: 'promo', b_por_toque: 600, custo: 5, tipo: 'TOKEN', nomeCusto: 'TON' };
+    
+    const recompensasAmigos = [
+        { id: 'amigo_1', quantidade: 1, pontos: 1000, nome: "1 Amigo (1.000 EP)" }, { id: 'amigo_5', quantidade: 5, pontos: 5000, nome: "5 Amigos (5.000 EP)" }, { id: 'amigo_10', quantidade: 10, pontos: 10000, nome: "10 Amigos (10.000 EP)" }, { id: 'amigo_20', quantidade: 20, pontos: 25000, nome: "20 Amigos (25.000 EP)" }, { id: 'amigo_30', quantidade: 30, pontos: 35000, nome: "30 Amigos (35.000 EP)" }, { id: 'amigo_50', quantidade: 50, pontos: 60000, nome: "50 Amigos (60.000 EP)" }, { id: 'amigo_100', quantidade: 100, pontos: 120000, nome: "100 Amigos (120.000 EP)" }
+    ];
+
+    const niveis = [
+        { nivel: 1, nome: 'GENESIS', pontos: 0 }, { nivel: 2, nome: 'ALFA', pontos: 25000 }, { nivel: 3, nome: 'BETA', pontos: 50000 }, { nivel: 4, nome: 'DELTA', pontos: 100000 }, { nivel: 5, nome: 'OMEGA', pontos: 500000 }, { nivel: 6, nome: 'QUARK', pontos: 1000000 }, { nivel: 7, nome: 'NEURON', pontos: 2000000 }, { nivel: 8, nome: 'QUANTUM', pontos: 5000000 }, { nivel: 9, nome: 'RELATIVITY', pontos: 10000000 }, { nivel: 10, nome: 'BIGBANG', pontos: 20000000 }, { nivel: 11, nome: 'EXPANSION', pontos: 30000000 }, { nivel: 12, nome: 'DARKENERGY', pontos: 40000000 }, { nivel: 13, nome: 'SINGULARITY', pontos: 50000000 }, { nivel: 14, nome: 'NEBULA', pontos: 60000000 }, { nivel: 15, nome: 'GALAXY', pontos: 70000000 }, { nivel: 16, nome: 'COSMOS', pontos: 80000000 }, { nivel: 17, nome: 'EINSTEINIUM', pontos: 90000000 }, { nivel: 18, nome: 'WORMHOLE', pontos: 100000000 }, { nivel: 19, nome: 'DIMENSION', pontos: 120000000 }, { nivel: 20, nome: 'MULTIVERSO', pontos: 140000000 }, { nivel: 21, nome: 'SPACE-TIME', pontos: 160000000 }, { nivel: 22, nome: 'INFINITO', pontos: 180000000 }, { nivel: 23, nome: 'ETHER', pontos: 200000000 }, { nivel: 24, nome: 'SPEEDLIGHT', pontos: 250000000 }, { nivel: 25, nome: 'GRAVITY', pontos: 300000000 }, { nivel: 26, nome: 'BLACKHOLE', pontos: 350000000 }, { nivel: 27, nome: 'ANTIMATTER', pontos: 450000000 }, { nivel: 28, nome: 'SINGULAR', pontos: 550000000 }, { nivel: 29, nome: 'LIGHTCORE', pontos: 650000000 }, { nivel: 30, nome: 'QUASAR', pontos: 800000000 }, { nivel: 31, nome: 'FINAL', pontos: 1000000000 }
+    ];
+
+    const baseCards = [
+        { id: "alpha", nome: "Cartão Alpha", preco: 100, boost: 5, img: "carta1.png", category: "baseCards" }, { id: "beta", nome: "Cartão Beta", preco: 250, boost: 10, img: "carta2.png", category: "baseCards" }, { id: "gama", nome: "Cartão Gama", preco: 500, boost: 20, img: "carta3.png", category: "baseCards" }, { id: "delta", nome: "Cartão Delta", preco: 1000, boost: 50, img: "carta4.png", category: "baseCards" }, { id: "epsilon", nome: "Cartão Epsilon", preco: 2000, boost: 100, img: "carta5.png", category: "baseCards" }, { id: "zeta", nome: "Cartão Zeta", preco: 5000, boost: 200, img: "carta6.png", category: "baseCards" }, { id: "sigma", nome: "Cartão Sigma", preco: 8000, boost: 350, img: "carta7.png", levelMin: 2, category: "baseCards" }, { id: "lambda", nome: "Cartão Lambda", preco: 15000, boost: 500, img: "carta8.png", levelMin: 2, category: "baseCards" }, { id: "kappa", nome: "Cartão Kappa", preco: 20000, boost: 750, img: "carta9.png", levelMin: 2, category: "baseCards" }, { id: "omega", nome: "Cartão Omega", preco: 30000, boost: 1000, img: "carta10.png", levelMin: 2, category: "baseCards" }, { id: "ultimate", nome: "Cartão Ultimate", preco: 50000, boost: 1500, img: "carta11.png", levelMin: 2, category: "baseCards" },
+    ];
+
+    const energyCards = [
+        { id: "energy1", nome: "Aumento de Bateria Pequeno", preco: 2000, efeito: "+50 cliques de capacidade", img: "energy_card1.png", category: "energyCards" }, { id: "energy2", nome: "Recarga Rápida Nível 1", preco: 5000, efeito: "+10% velocidade de recarga", img: "energy_card2.png", category: "energyCards" },
+    ];
+
+    const speedCards = [
+        { id: "speed1", nome: "Motor Eficiente", preco: 3000, efeito: "+50 mineração/hora", img: "speed_card1.png", category: "speedCards" }, { id: "speed2", nome: "Anúncios Turbo", preco: 1, tipoCusto: "TON", efeito: "Reduz tempo de anúncios em 1s", img: "speed_card2.png", category: "speedCards" },
+    ];
+
+    const luckCards = [
+        { id: "luck1", nome: "Amuleto da Sorte", preco: 10000, efeito: "+0.5% chance de prêmio raro", img: "luck_card1.png", category: "luckCards" }, { id: "luck2", nome: "Detector de Bônus", preco: 2, tipoCusto: "TON", efeito: "Chance de bônus de pontos ao minerar idle", img: "luck_card2.png", category: "luckCards" },
+    ];
+
+    const efficiencyCards = [
+        { id: "efficiency1", nome: "Calculadora Quântica", preco: 25000, efeito: "Reduz o preço de Cartões Base em 5%", img: "efficiency_card1.png", category: "efficiencyCards" }, { id: "efficiency2", nome: "Contrato Inteligente", preco: 5, tipoCusto: "TON", efeito: "Reduz o custo em TON de cartões especiais em 10%", img: "efficiency_card2.png", category: "efficiencyCards" }
+    ];
+
+    const automationCards = [
+        { id: "automation1", nome: "Auto-Clicker Básico", preco: 50000, efeito: "Clica 1 vez a cada 10s", img: "automation_card1.png", category: "automationCards" }, { id: "automation2", nome: "Coletor de Bônus", preco: 10, tipoCusto: "TON", efeito: "Coleta bônus automaticamente", img: "automation_card2.png", category: "automationCards" }
+    ];
+
+    const allCardCategories = {
+        baseCards: baseCards, energyCards: energyCards, speedCards: speedCards, luckCards: luckCards, efficiencyCards: efficiencyCards, automationCards: automationCards,
+    };
+
+    const premiosRoleta = [
+        { nome: "Tente Novamente", valor: 0, tipo: "tente_novamente", cor: "#808080", imagem: "nada_icone.png" },
+        { nome: "50 Pontos", valor: 50, tipo: "pontos", cor: "#4682B4", imagem: "ponto_icone.png" },
+        { nome: "3 Giros Grátis", valor: 0, tipo: "giro_gratis", quantidade: 3, cor: "#FF6347", imagem: "giro_gratis_icone.png" },
+        { nome: "100 Pontos", valor: 100, tipo: "pontos", cor: "#6A5ACD", imagem: "ponto_icone.png" },
+        { nome: "1h Mineração Duplicada", valor: 0, tipo: "mineracao_duplicada", duracao_horas: 1, cor: "#DAA520", imagem: "mineracao_icone.png" },
+        { nome: "200 Pontos (Escalável)", valor: 0, tipo: "pontos_escalavel", cor: "#FFFF00", imagem: "ponto_escalavel_icone.png" },
+        { nome: "20m Mineração Triplicada", valor: 0, tipo: "mineracao_triplicada", duracao_minutos: 20, cor: "#00CED1", imagem: "mineracao_triplicada_icone.png" },
+        { nome: "100 Toques na Moeda (5min)", valor: 0, tipo: "bonus_cliques", duracao_minutos: 5, quantidade_cliques: 100, cor: "#FF1493", imagem: "cliques_icone.png" },
+        { nome: "1 Token (TON)", valor: 1, tipo: "token", cor: "#9370DB", imagem: "token_icone.png" },
+        { nome: "Súper Surpresa!", valor: 0, tipo: "surpresa", cor: "#FFD700", imagem: "surpresa_icone.png" },
+    ];
+
+    const MINAS_GRID_SIZE = 5;
+
+    const DIFICULDADES_MINAS = [
+        { nome: 'Fácil', bombas: 3, multiplicador: 1.2 },
+        { nome: 'Médio', bombas: 5, multiplicador: 1.5 },
+        { nome: 'Difícil', bombas: 8, multiplicador: 2.0 },
+        { nome: 'Insano', bombas: 12, multiplicador: 3.0 }
+    ];
+
+    let minasBoard = [];
+    let minasGameActive = false;
+    let minasGanhosAtuais = 0;
+    let apostaAtual = 500;    
+
+    function setupMinasView() {
+        document.getElementById('minasStatus').textContent = 'Ajuste sua aposta e dificuldade, depois inicie o jogo.';
+        document.getElementById('minasGanhos').textContent = '0';
+        document.getElementById('btnIniciarMinas').disabled = false;
+        document.getElementById('btnColetarMinas').disabled = true;
+        document.getElementById('minasApostaInput').value = 500;
+
+        const dificuldadeSelect = document.getElementById('minasDificuldadeSelect');
+        dificuldadeSelect.innerHTML = '';
+        DIFICULDADES_MINAS.forEach((dificuldade, index) => {
+            const option = document.createElement('option');
+            option.value = dificuldade.bombas;
+            option.dataset.multiplicador = dificuldade.multiplicador;
+            option.textContent = `${dificuldade.nome} (${dificuldade.bombas} bombas)`;
+            dificuldadeSelect.appendChild(option);
+        });
+        
+        dificuldadeSelect.addEventListener('change', atualizarDisplayMultiplicador);
+
+        const grid = document.getElementById('minas-grid');
+        grid.innerHTML = '';
+        for (let i = 0; i < MINAS_GRID_SIZE * MINAS_GRID_SIZE; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'mina-cell';
+            grid.appendChild(cell);
+        }
+        
+        atualizarDisplayMultiplicador();
+    }
+
+    function atualizarDisplayMultiplicador() {
+        const dificuldadeSelect = document.getElementById('minasDificuldadeSelect');
+        const selectedOption = dificuldadeSelect.options[dificuldadeSelect.selectedIndex];
+        const multiplicador = selectedOption.dataset.multiplicador;
+        document.getElementById('minasMultiplicador').textContent = `${parseFloat(multiplicador).toFixed(1)}x`;
+    }
+
+    function iniciarJogoMinas() {
+        apostaAtual = parseInt(document.getElementById('minasApostaInput').value);
+
+        if (isNaN(apostaAtual) || apostaAtual < 500) {
+            alert('A aposta mínima é de 500 EINSTEINPOINT.');
+            return;
+        }
+
+        if (pontos < apostaAtual) {
+            alert(`Você precisa de pelo menos ${apostaAtual.toLocaleString('pt-BR')} EINSTEINPOINT para jogar.`);
+            return;
+        }
+
+        pontos -= apostaAtual;
+        minasGanhosAtuais = 0;
+        minasGameActive = true;
+        atualizarInterface();
+        
+        const dificuldadeSelect = document.getElementById('minasDificuldadeSelect');
+        const bombasAtuais = parseInt(dificuldadeSelect.value);
+
+        document.getElementById('minasStatus').textContent = 'Jogo iniciado! Cuidado com as bombas.';
+        document.getElementById('minasGanhos').textContent = '0';
+        document.getElementById('btnIniciarMinas').disabled = true;
+        document.getElementById('btnColetarMinas').disabled = false;
+
+        minasBoard = Array(MINAS_GRID_SIZE).fill(null).map(() => Array(MINAS_GRID_SIZE).fill(null).map(() => ({ isBomb: false, isRevealed: false })));
+
+        let bombsPlaced = 0;
+        while (bombsPlaced < bombasAtuais) {
+            const row = Math.floor(Math.random() * MINAS_GRID_SIZE);
+            const col = Math.floor(Math.random() * MINAS_GRID_SIZE);
+            if (!minasBoard[row][col].isBomb) {
+                minasBoard[row][col].isBomb = true;
+                bombsPlaced++;
+            }
+        }
+
+        renderMinasGrid();
+    }
+
+    function renderMinasGrid() {
+        const grid = document.getElementById('minas-grid');
+        grid.innerHTML = '';
+        for (let i = 0; i < MINAS_GRID_SIZE; i++) {
+            for (let j = 0; j < MINAS_GRID_SIZE; j++) {
+                const cell = document.createElement('div');
+                cell.className = 'mina-cell';
+                
+                const cellData = minasBoard[i][j];
+                if (cellData.isRevealed) {
+                    cell.classList.add('revealed');
+                    const content = document.createElement('div');
+                    content.className = 'mina-cell-content';
+                    if(cellData.isBomb) {
+                        content.textContent = '💣';
+                        cell.classList.add('bomb');
+                    } else {
+                        content.textContent = '💎';
+                    }
+                    cell.appendChild(content);
+                } else {
+                    cell.onclick = () => clicarMina(i, j);
+                }
+
+                grid.appendChild(cell);
+            }
+        }
+    }
+
+    function clicarMina(row, col) {
+        if (!minasGameActive || minasBoard[row][col].isRevealed) {
+            return;
+        }
+
+        const cellData = minasBoard[row][col];
+        cellData.isRevealed = true;
+
+        if (cellData.isBomb) {
+            minasGameActive = false;
+            document.getElementById('minasStatus').textContent = `BOOM! Você perdeu a aposta de ${apostaAtual.toLocaleString('pt-BR')} EP.`;
+            document.getElementById('btnColetarMinas').disabled = true;
+            document.getElementById('btnIniciarMinas').disabled = false;
+            revelarTodasAsBombas();
+        } else {
+            const dificuldadeSelect = document.getElementById('minasDificuldadeSelect');
+            const bombasAtuais = parseInt(dificuldadeSelect.value);
+            const multiplicadorAtual = parseFloat(dificuldadeSelect.options[dificuldadeSelect.selectedIndex].dataset.multiplicador);
+            const totalCelulasSeguras = (MINAS_GRID_SIZE * MINAS_GRID_SIZE) - bombasAtuais;
+            
+            const ganhoPorCelulaSegura = (apostaAtual / totalCelulasSeguras) * multiplicadorAtual;
+
+            minasGanhosAtuais += ganhoPorCelulaSegura;
+            document.getElementById('minasGanhos').textContent = Math.floor(minasGanhosAtuais).toLocaleString('pt-BR');
+            document.getElementById('minasStatus').textContent = 'Seguro! Continue ou colete seus ganhos.';
+            renderMinasGrid();
+        }
+    }
+    
+    function revelarTodasAsBombas() {
+        for (let i = 0; i < MINAS_GRID_SIZE; i++) {
+            for (let j = 0; j < MINAS_GRID_SIZE; j++) {
+                if(minasBoard[i][j].isBomb) {
+                    minasBoard[i][j].isRevealed = true;
+                }
+            }
+        }
+        renderMinasGrid();
+    }
+    
+    function coletarPontosMinas() {
+        if (!minasGameActive || minasGanhosAtuais === 0) {
+            return;
+        }
+        
+        const totalRetornado = apostaAtual + minasGanhosAtuais;
+        pontos += totalRetornado;
+        alert(`Você recuperou sua aposta de ${apostaAtual.toLocaleString('pt-BR')} e coletou ${Math.floor(minasGanhosAtuais).toLocaleString('pt-BR')} de ganhos. Total: ${Math.floor(totalRetornado).toLocaleString('pt-BR')} EINSTEINPOINT!`);
+        
+        minasGameActive = false;
+        minasGanhosAtuais = 0;
+        
+        atualizarInterface();
+        setupMinasView();
+    }
+
+    function comprarIngressoIsencao() {
+        if (temIngressoIsencao) {
+            alert('Você já possui o Ingresso de Isenção de Taxa!');
+            return;
+        }
+
+        const custo = 2.5;
+        if (meusTokens < custo) {
+            alert(`Você precisa de ${custo} TON para comprar este ingresso.`);
+            return;
+        }
+
+        if (confirm(`Deseja comprar o Ingresso de Isenção de Taxa por ${custo} TON?`)) {
+            meusTokens -= custo;
+            temIngressoIsencao = true;
+            alert('Parabéns! Você comprou o ingresso e agora está isento das taxas de saque.');
+            atualizarInterface();
+        }
+    }
+
+    function atualizarVisualIngresso() {
+        const ingressoImg = document.getElementById('ingresso-isencao');
+        const avisoComprado = document.getElementById('ingresso-comprado-aviso');
+        
+        if (temIngressoIsencao) {
+            ingressoImg.style.cursor = 'default';
+            ingressoImg.style.filter = 'grayscale(80%)';
+            avisoComprado.style.display = 'block';
+        } else {
+            ingressoImg.style.cursor = 'pointer';
+            ingressoImg.style.filter = 'none';
+            avisoComprado.style.display = 'none';
+        }
+    }
+    
+    function simularSaque() {
+        if (temIngressoIsencao) {
+            alert('SAQUE SIMULADO: Transação iniciada. Você está ISENTO da taxa de saque por possuir o ingresso! 🚀');
+        } else {
+            alert('SAQUE SIMULADO: Transação iniciada. Uma pequena taxa de saque será aplicada, pois você não possui o ingresso. 💸');
+        }
+    }
+
+    function getCardPrice(cardId, defaultPrice) {
+        const storedPrice = localStorage.getItem(`cardPrice_${cardId}`);
+        if (storedPrice) {
+            return parseFloat(storedPrice);
+        }
+        if (!isFirstTimeGameLoad) {
+            localStorage.setItem(`cardPrice_${cardId}`, defaultPrice);
+        }
+        return defaultPrice;
+    }
+
+    function setCardPrice(cardId, newPrice) {
+        localStorage.setItem(`cardPrice_${cardId}`, newPrice);
+    }
+
+    function atualizarInterface() {
+        document.getElementById("pontuacao").textContent = Math.floor(pontos).toLocaleString('pt-BR');
+        
+        let mineracaoDisplay = autoMineracao;
+        if (mineracaoDuplicadaAtiva) {
+            mineracaoDisplay *= 2;
+        }
+        if (mineracaoTriplicadaAtiva) {
+            mineracaoDisplay *= 3;
+        }
+        document.getElementById("autoMineracao").textContent = mineracaoDisplay.toFixed(2);
+
+        const nivelAtual = niveis.slice().reverse().find(n => pontos >= n.pontos) || niveis[0];
+        
+        let progresso = 0;
+        const proximo = niveis.find(n => n.pontos > pontos);
+        if (proximo) {
+            const anterior = niveis[niveis.indexOf(proximo) - 1];
+            progresso = ((pontos - anterior.pontos) / (proximo.pontos - anterior.pontos)) * 100;
+            document.getElementById("progressoTexto").textContent = `${nivelAtual.nome} (${Math.floor(progresso)}%)`;
+        } else {
+            progresso = 100;
+            document.getElementById("progressoTexto").textContent = `MAX LEVEL!`;
+        }
+        document.getElementById("progresso").style.width = progresso + "%";
+        
+        localStorage.setItem("pontos", pontos);
+        localStorage.setItem("autoMineracao", autoMineracao);
+        localStorage.setItem("ultimoGiroRoleta", ultimoGiroRoleta);
+        localStorage.setItem('videosAssistidos', JSON.stringify(videosAssistidos));
+        localStorage.setItem('printsEnviados', JSON.stringify(printsEnviados));
+        localStorage.setItem('girosGratis', girosGratis);
+        localStorage.setItem('ads30FreeSpinProgress', JSON.stringify(ads30FreeSpinProgress));
+        localStorage.setItem('amigosConvidados', amigosConvidados);
+        localStorage.setItem('recompensasAmigosColetadas', JSON.stringify(recompensasAmigosColetadas));
+        localStorage.setItem('pontosComunidade', pontosComunidade);
+        localStorage.setItem('meusTokens', meusTokens);
+        localStorage.setItem('pontosPorToque', pontosPorToque);
+        localStorage.setItem('upgradeToqueNivel', upgradeToqueNivel);
+        localStorage.setItem('upgradePromoToqueComprado', upgradePromoToqueComprado);
+        localStorage.setItem('mineracaoDuplicadaAtiva', mineracaoDuplicadaAtiva);
+        localStorage.setItem('tempoFimDuplicacao', tempoFimDuplicacao);
+        localStorage.setItem('mineracaoTriplicadaAtiva', mineracaoTriplicadaAtiva);
+        localStorage.setItem('tempoFimTriplicacao', tempoFimTriplicacao);
+        localStorage.setItem('bonusCliquesAtivo', bonusCliquesAtivo);
+        localStorage.setItem('cliquesBonusRestantes', cliquesBonusRestantes);
+        localStorage.setItem('pontosPorToqueOriginal', pontosPorToqueOriginal);
+        localStorage.setItem('adPassComprado', adPassComprado);
+        localStorage.setItem('tokenMiningPlanActive', JSON.stringify(tokenMiningPlanActive));
+        localStorage.setItem('dailyFreeSpin', JSON.stringify(dailyFreeSpin));
+        localStorage.setItem('questTelegramShare', questTelegramShare);
+        localStorage.setItem('temIngressoIsencao', temIngressoIsencao);
+        atualizarVisualIngresso();
+    }
+
+    function criarCartoes(categoryName = 'baseCards') {
+        const container = document.getElementById('cartoesContainer');
+        if (!container) return;
+
+        document.querySelectorAll('.card-section').forEach(section => section.classList.remove('active-section'));
+        document.querySelectorAll('.improve-category-buttons button').forEach(btn => btn.classList.remove('active-category'));
+
+        const activeSection = document.getElementById(categoryName);
+        if (activeSection) activeSection.classList.add('active-section');
+
+        const btnId = `btn${categoryName.charAt(0).toUpperCase() + categoryName.slice(1)}`;
+        const activeButton = document.getElementById(btnId);
+        if (activeButton) activeButton.classList.add('active-category');
+
+        if (categoryName === 'baseCards') {
+            container.innerHTML = "";
+            const nivelAtual = niveis.slice().reverse().find(n => pontos >= n.pontos) || niveis[0];
+
+            baseCards.forEach(carta => {
+                const precoAtual = getCardPrice(carta.id, carta.preco);
+                
+                const div = document.createElement("div");
+                div.className = "cartao";
+                div.innerHTML = `
+                    <img src="${carta.img}" />
+                    <p><strong>${carta.nome}</strong></p>
+                    <p>Preço: ${Math.round(precoAtual).toLocaleString('pt-BR')} EINSTEINPOINT</p>
+                    <p>Mineração: +${carta.boost}/h</p>
+                    <button onclick="comprarCartao('${carta.id}', ${carta.boost}, '${carta.category}')">Comprar</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+    }
+
+    function showCardCategory(categoryId) {
+        criarCartoes(categoryId);
+    }
+
+    function comprarCartao(cardId, boost, category) {
+        let carta = allCardCategories[category]?.find(c => c.id === cardId);
+
+        if (!carta) {
+            alert("Cartão não encontrado ou categoria inválida.");
+            return;
+        }
+
+        let precoAtual;
+        if (carta.tipoCusto === "TON") {
+            precoAtual = carta.preco;
+            if (meusTokens < precoAtual) {
+                alert(`Você precisa de ${precoAtual.toFixed(1)} TON para comprar o ${carta.nome}.`);
+                return;
+            }
+            meusTokens -= precoAtual;
+        } else {
+            precoAtual = getCardPrice(cardId, carta.preco);
+            if (pontos < precoAtual) {
+                alert(`Você precisa de ${Math.round(precoAtual).toLocaleString('pt-BR')} EINSTEINPOINT para comprar o ${carta.nome}.`);
+                return;
+            }
+            pontos -= precoAtual;
+            if (category === 'baseCards') {
+                setCardPrice(cardId, precoAtual * 2);
+            }
+        }
+        
+        if (boost) {
+            autoMineracao += boost;
+        } else {
+            alert(`Comprado ${carta.nome}! Efeito: ${carta.efeito}`);
+        }
+
+        atualizarInterface();
+        criarCartoes(category);
+    }
+
+    function comprarNFT(nomeNFT, preco, moeda) {
+        if (moeda === 'TON') {
+            if (meusTokens >= preco) {
+                meusTokens -= preco;
+                alert(`Você comprou o NFT "${nomeNFT}" por ${preco} TON!`);
+                atualizarInterface();
+            } else {
+                alert(`Você não tem TON suficiente para comprar este NFT! Precisa de ${preco} TON.`);
+            }
+        } else {
+            alert(`Compra de ${nomeNFT} com ${moeda} não implementada.`);
+        }
+    }
+
+    function minerar() {
+        if (bonusCliquesAtivo) {
+            if (cliquesBonusRestantes > 0) {
+                pontos += pontosPorToque;
+                cliquesBonusRestantes--;
+                if (cliquesBonusRestantes <= 0) {
+                    pontosPorToque = pontosPorToqueOriginal;
+                    bonusCliquesAtivo = false;
+                    alert("O bônus de toques na moeda terminou!");
+                }
+            }
+        } else {
+            pontos += pontosPorToque;
+        }
+        atualizarInterface();
+    }
+
+    function minerarAuto() {
+        let mineracaoEfetiva = autoMineracao;
+        if (mineracaoDuplicadaAtiva) mineracaoEfetiva *= 2;
+        if (mineracaoTriplicadaAtiva) mineracaoEfetiva *= 3;
+        const pontosPorIntervalo = mineracaoEfetiva * (10 / 3600);
+        pontos += pontosPorIntervalo;
+        
+        if (tokenMiningPlanActive.active) {
+            const now = Date.now();
+            const tokensGeneratedThisInterval = tokenMiningPlanActive.tokensPerHour * (10 / 3600);
+            tokenMiningPlanActive.pendingTokens += tokensGeneratedThisInterval;
+            
+            if (now >= tokenMiningPlanActive.endTime) {
+                tokenMiningPlanActive.active = false;
+                alert("Seu plano de mineração de tokens expirou!");
+                meusTokens += tokenMiningPlanActive.pendingTokens;
+                tokenMiningPlanActive.pendingTokens = 0;
+                alert("Tokens restantes foram adicionados à sua carteira.");
+            }
+        }
+
+        pontosComunidade += Math.random() * (autoMineracao * 50);
+        const tokensGanhos = Math.floor(pontos / 1000) - Math.floor((pontos - pontosPorIntervalo) / 1000);
+        if (tokensGanhos > 0) meusTokens += tokensGanhos;
+
+        if (mineracaoDuplicadaAtiva && Date.now() >= tempoFimDuplicacao) {
+            mineracaoDuplicadaAtiva = false;
+            tempoFimDuplicacao = 0;
+            alert("O bônus de mineração duplicada terminou!");
+        }
+        if (mineracaoTriplicadaAtiva && Date.now() >= tempoFimTriplicacao) {
+            mineracaoTriplicadaAtiva = false;
+            tempoFimTriplicacao = 0;
+            alert("O bônus de mineração triplicada terminou!");
+        }
+        atualizarInterface();
+    }
+
+    function toggleMenu() {
+        document.getElementById('menu-lateral').classList.toggle('aberto');
+        document.getElementById('menu-backdrop').classList.toggle('ativo');
+    }
+
+    function abrirAba(id) {
+        document.querySelectorAll(".aba").forEach(div => div.classList.remove("ativo"));
+        const abaAtiva = document.getElementById(id);
+        if (abaAtiva) abaAtiva.classList.add("ativo");
+
+        const topBarContainer = document.getElementById('top-bar-container');
+        const topoAbas = document.getElementById('topo-abas');
+        const progressMiningContainer = document.getElementById('progress-mining-container');
+
+        if (id === 'jogo') {
+            topBarContainer.style.display = 'flex';
+            topoAbas.style.display = 'none';
+            progressMiningContainer.style.display = 'flex';
+        } else {
+            topBarContainer.style.display = 'none';
+            topoAbas.style.display = 'flex';
+            progressMiningContainer.style.display = 'none';
+        }
+
+        if (id === 'perfil') {
+            document.getElementById('userIdDisplay').textContent = userId;
+            const nivelAtual = niveis.slice().reverse().find(n => pontos >= n.pontos) || niveis[0];
+            document.getElementById('userLevelDisplay').textContent = `${nivelAtual.nivel} - ${nivelAtual.nome}`;
+        }
+
+        if (id === 'niveis') {
+            const ranking = document.getElementById("rankingNiveis");
+            if (ranking) {
+                ranking.innerHTML = niveis.map(n => `<p><strong>Level ${n.nivel} - ${n.nome}</strong>: ${n.pontos.toLocaleString('pt-BR')} pontos</p>`).join('');
+            }
+        }
+        
+        if (id === 'roleta') { checarCooldownRoleta(); desenharRoleta(); }
+        if (id === 'upgrade') { showCardCategory('baseCards'); }
+        if (id === 'quests') { carregarEstadoQuests(); }
+        if (id === 'friends') { carregarEstadoAmigos(); }
+        if (id === 'carteira') { carregarEstadoCarteira(); carregarPlanosMineracaoTokens(); }
+        if (id === 'negociar') { carregarEstadoNegociar(); }
+        if (id === 'aba3') { carregarUpgradesToque(); verificarConquistas(); }
+        if (id === 'minas') { setupMinasView(); }
+        // NOVO: Inicializa o jogo da memória ao abrir a aba
+        if (id === 'memoryGame') { initializeMemoryGame(); }
+    }
+
+    function resetarProgresso() {
+        if (confirm("Tem certeza que deseja excluir sua conta? Todo o progresso será perdido permanentemente.")) {
+            localStorage.clear();
+            localStorage.setItem('isFirstTimeGameLoad', 'true');
+            location.reload();
+        }
+    }
+
+    function alternarModo() {
+        document.body.classList.toggle("modo-claro");
+    }
+
+    function verificarConquistas() {
+        if (pontos >= 1000) document.getElementById("c2").textContent = "Desbloqueado!";
+        if (pontos >= 10000) document.getElementById("c3").textContent = "Desbloqueado!";
+    }
+
+    function desenharRoleta() {
+        const roletaRoda = document.getElementById("roleta-roda");
+        if (!roletaRoda) return;
+        roletaRoda.innerHTML = "";
+        const numSegmentos = premiosRoleta.length;
+        const anguloSegmento = 360 / numSegmentos;
+
+        premiosRoleta.forEach((premio, index) => {
+            const segmento = document.createElement("div");
+            segmento.className = "segmento";
+            segmento.style.backgroundColor = premio.cor;
+            segmento.style.transform = `rotate(${index * anguloSegmento}deg) skewY(-${90 - anguloSegmento}deg)`;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.style.position = 'absolute';
+            contentDiv.style.top = '50%';
+            contentDiv.style.left = '50%';
+            contentDiv.style.transform = `translate(-50%, -50%) skewY(${90 - anguloSegmento}deg) rotate(${anguloSegmento / 2}deg)`;
+            contentDiv.style.display = 'flex';
+            contentDiv.style.flexDirection = 'column';
+            contentDiv.style.alignItems = 'center';
+            contentDiv.style.justifyContent = 'center';
+            contentDiv.style.width = '100%';
+            contentDiv.style.height = '100%';
+            contentDiv.style.paddingTop = '10px';
+
+            if (premio.imagem) {
+                const img = document.createElement('img');
+                img.src = premio.imagem;
+                img.alt = premio.nome;
+                contentDiv.appendChild(img);
+            }
+
+            const textoSpan = document.createElement('span');
+            textoSpan.textContent = premio.nome;
+            contentDiv.appendChild(textoSpan);
+
+            segmento.appendChild(contentDiv);
+            roletaRoda.appendChild(segmento);
+        });
+    }
+
+    function girarRoleta() {
+        const girarBotao = document.getElementById("girar-roleta");
+        const resultadoRoleta = document.getElementById("resultado-roleta");
+        if (!girarBotao || !resultadoRoleta) return;
+        
+        let custo = 500;
+        let isFreeSpin = false;
+
+        if (!dailyFreeSpin.usedToday) {
+            custo = 0;
+            isFreeSpin = true;
+            dailyFreeSpin.usedToday = true;
+            dailyFreeSpin.lastUseDate = new Date().toLocaleDateString('pt-BR');
+        } else if (girosGratis > 0) {
+            custo = 0;
+            isFreeSpin = true;
+            girosGratis -= 1;
+        } else if (pontos < custo) {
+            resultadoRoleta.textContent = "Você precisa de 500 EINSTEINPOINT para girar a roleta ou ter um giro grátis!";
+            return;
+        }
+
+        const agora = Date.now();
+        const COOLDOWN_ROLETA = 60 * 60 * 1000;
+        if (agora - ultimoGiroRoleta < COOLDOWN_ROLETA && custo !== 0) {
+            const tempoRestanteMs = COOLDOWN_ROLETA - (agora - ultimoGiroRoleta);
+            const horas = Math.floor(tempoRestanteMs / 3600000);
+            const minutos = Math.floor((tempoRestanteMs % 3600000) / 60000);
+            const segundos = Math.floor((tempoRestanteMs % 60000) / 1000);
+            resultadoRoleta.textContent = `Você precisa esperar ${horas}h ${minutos}m ${segundos}s para girar novamente.`;
+            girarBotao.disabled = true;
+            setTimeout(checarCooldownRoleta, 1000);
+            return;
+        }
+
+        girarBotao.disabled = true;
+        if (custo !== 0) pontos -= custo;
+        atualizarInterface();
+        
+        const roletaRoda = document.getElementById("roleta-roda");
+        const premioSorteadoIndex = Math.floor(Math.random() * premiosRoleta.length);
+        const anguloSegmento = 360 / premiosRoleta.length;
+        const anguloFinal = (360 * 5) + (premioSorteadoIndex * anguloSegmento) + (anguloSegmento / 2) + (Math.random() * anguloSegmento - anguloSegmento / 2);
+
+        roletaRoda.style.transition = 'transform 4s cubic-bezier(0.2, 0.9, 0.3, 1)';
+        roletaRoda.style.transform = `rotate(${anguloFinal}deg)`;
+
+        setTimeout(() => {
+            roletaRoda.style.transition = 'none';
+            roletaRoda.style.transform = `rotate(${anguloFinal % 360}deg)`;
+            
+            const premioGanho = premiosRoleta[premioSorteadoIndex];
+            let mensagemResultado = `Parabéns! Você ganhou: ${premioGanho.nome}!`;
+
+            if (premioGanho.tipo === "pontos") {
+                pontos += premioGanho.valor;
+            } else if (premioGanho.tipo === "pontos_escalavel") {
+                const valorEscalado = Math.max(200, Math.floor(autoMineracao));
+                pontos += valorEscalado;
+                mensagemResultado = `Parabéns! Você ganhou: ${valorEscalado.toLocaleString('pt-BR')} Pontos (Escalável)!`;
+            } else if (premioGanho.tipo === "token") {
+                meusTokens += premioGanho.valor;
+            } else if (premioGanho.tipo === "giro_gratis") {
+                girosGratis += premioGanho.quantidade;
+                mensagemResultado = `Parabéns! Você ganhou: ${premioGanho.quantidade} Giros Grátis!`;
+            } else if (premioGanho.tipo === "mineracao_duplicada") {
+                mineracaoDuplicadaAtiva = true;
+                tempoFimDuplicacao = Date.now() + (premioGanho.duracao_horas * 3600000);
+                mensagemResultado = `Parabéns! Sua mineração automática está DUPLICADA por ${premioGanho.duracao_horas} hora(s)!`;
+            } else if (premioGanho.tipo === "mineracao_triplicada") {
+                mineracaoTriplicadaAtiva = true;
+                tempoFimTriplicacao = Date.now() + (premioGanho.duracao_minutos * 60000);
+                mensagemResultado = `Parabéns! Sua mineração automática está TRIPLICADA por ${premioGanho.duracao_minutos} minuto(s)!`;
+            } else if (premioGanho.tipo === "bonus_cliques") {
+                pontosPorToqueOriginal = pontosPorToque;
+                pontosPorToque = premioGanho.quantidade_cliques;
+                bonusCliquesAtivo = true;
+                cliquesBonusRestantes = premioGanho.quantidade_cliques;
+                setTimeout(() => {
+                    pontosPorToque = pontosPorToqueOriginal;
+                    bonusCliquesAtivo = false;
+                    cliquesBonusRestantes = 0;
+                    alert("O bônus de toques na moeda terminou!");
+                    atualizarInterface();
+                }, premioGanho.duracao_minutos * 60000);
+                mensagemResultado = `Parabéns! Seus toques valem ${premioGanho.quantidade_cliques} pontos por ${premioGanho.duracao_minutos} minutos!`;
+            } else if (premioGanho.tipo === "surpresa") {
+                const premioAleatorio = Math.random() < 0.5 ? 5000 : 10000;
+                pontos += premioAleatorio;
+                mensagemResultado = `Uau! Que sorte! Você ganhou ${premioAleatorio.toLocaleString('pt-BR')} EINSTEINPOINT!`;
+            } else if (premioGanho.tipo === "tente_novamente") {
+                mensagemResultado = `Que pena! ${premioGanho.nome}. Tente novamente!`;
+            }
+            alert(mensagemResultado);
+            atualizarInterface();
+            resultadoRoleta.textContent = mensagemResultado;
+            
+            if (custo !== 0) {
+                ultimoGiroRoleta = Date.now();
+                localStorage.setItem('ultimoGiroRoleta', ultimoGiroRoleta);
+            }
+            
+            girarBotao.disabled = false;
+            checarCooldownRoleta();
+        }, 4000);
+    }
+
+    function checarCooldownRoleta() {
+        const girarBotao = document.getElementById("girar-roleta");
+        const resultadoRoleta = document.getElementById("resultado-roleta");
+        if (!girarBotao || !resultadoRoleta) return;
+
+        const agora = Date.now();
+        const today = new Date().toLocaleDateString('pt-BR');
+        const COOLDOWN_ROLETA = 3600000;
+
+        if (dailyFreeSpin.lastUseDate !== today) {
+            dailyFreeSpin.usedToday = false;
+            dailyFreeSpin.lastUseDate = today;
+            localStorage.setItem('dailyFreeSpin', JSON.stringify(dailyFreeSpin));
+        }
+
+        document.querySelector('#roleta h2').textContent = `Recompensas: Gire a Roleta! (Giros Grátis: ${girosGratis})`;
+
+        if (!dailyFreeSpin.usedToday) {
+            resultadoRoleta.textContent = `Você tem 1 Giro Grátis DIÁRIO!`;
+            girarBotao.disabled = false;
+        } else if (girosGratis > 0) {
+            resultadoRoleta.textContent = `Você tem ${girosGratis} Giro(s) Grátis!`;
+            girarBotao.disabled = false;
+        } else if (agora - ultimoGiroRoleta < COOLDOWN_ROLETA) {
+            const tempoRestanteMs = COOLDOWN_ROLETA - (agora - ultimoGiroRoleta);
+            const horas = Math.floor(tempoRestanteMs / 3600000);
+            const minutos = Math.floor((tempoRestanteMs % 3600000) / 60000);
+            const segundos = Math.floor((tempoRestanteMs % 60000) / 1000);
+            resultadoRoleta.textContent = `Você precisa esperar ${horas}h ${minutos}m ${segundos}s para girar novamente.`;
+            girarBotao.disabled = true;
+            setTimeout(checarCooldownRoleta, 1000);
+        } else {
+            resultadoRoleta.textContent = "Custo para girar: 500 EINSTEINPOINT";
+            girarBotao.disabled = false;
+        }
+    }
+
+    function comprarAdPass() {
+        const custo = 2.5;
+        if (adPassComprado) {
+            alert('Você já possui o Passe Livre de Mineração de Anúncios!');
+            return;
+        }
+        if (meusTokens < custo) {
+            alert(`Você precisa de ${custo.toFixed(1)} TON para comprar o Passe Livre.`);
+            return;
+        }
+        if (confirm(`Comprar Passe Livre de Mineração de Anúncios por ${custo.toFixed(1)} TON?`)) {
+            meusTokens -= custo;
+            adPassComprado = true;
+            alert('Passe Livre de Mineração de Anúncios comprado com sucesso!');
+            atualizarInterface();
+            carregarEstadoQuests();
+        }
+    }
+
+    function iniciarAdIlimitado() {
+        const statusElement = document.getElementById('ad_ilimitado_status');
+        const buttonElement = document.getElementById('iniciarAdIlimitadoBtn');
+        const tg = window.Telegram.WebApp;
+
+        if (!adPassComprado) {
+            alert('Você precisa comprar o Passe Livre de Mineração de Anúncios para usar esta função!');
+            return;
+        }
+
+        buttonElement.disabled = true;
+        statusElement.textContent = 'Carregando anúncio...';
+
+        try {
+            tg.Ads.showRewardedVideo((result) => {
+                if (result.success === true) {
+                    pontos += 2000;
+                    statusElement.textContent = `+2000 EINSTEINPOINT! Assista novamente.`;
+                } else {
+                    statusElement.textContent = 'Anúncio não concluído.';
+                }
+                buttonElement.disabled = false;
+                atualizarInterface();
+            });
+        } catch (e) {
+            alert("Função de anúncios indisponível. Certifique-se de que está rodando o app no Telegram.");
+            buttonElement.disabled = false;
+            statusElement.textContent = 'Erro ao carregar.';
+        }
+    }
+    
+    function iniciarAdContador(questId, adsNecessarios) {
+        const buttonElement = document.querySelector(`#quests button[onclick*="'${questId}'"]`);
+        const statusElement = document.getElementById(`${questId}_status`);
+        const tg = window.Telegram.WebApp;
+        if (!buttonElement || !statusElement) return;
+
+        if (ads30FreeSpinProgress.count >= adsNecessarios) {
+            alert('Você já assistiu o máximo de anúncios por hoje para esta recompensa. Volte amanhã!');
+            return;
+        }
+        
+        buttonElement.disabled = true;
+        statusElement.textContent = 'Carregando anúncio...';
+
+        try {
+            tg.Ads.showRewardedVideo((result) => {
+                if (result.success === true) {
+                    ads30FreeSpinProgress.count++;
+                    girosGratis++;
+                    alert('Parabéns! Você ganhou 1 Giro Grátis na Roleta!');
+                    statusElement.textContent = `+1 Giro Grátis! ✨`;
+                } else {
+                    statusElement.textContent = 'Anúncio não concluído.';
+                }
+                
+                atualizarInterface();
+                carregarEstadoQuests();
+            });
+        } catch (e) {
+            alert("Função de anúncios indisponível.");
+            buttonElement.disabled = false;
+            statusElement.textContent = 'Erro ao carregar.';
+        }
+    }
+    
+    function abrirVideo(platformId, videoUrl, pontosGanho) {
+        const buttonElement = document.querySelector(`#quests button[onclick*="'${platformId}'"]`);
+        if (videosAssistidos[platformId] || buttonElement.disabled) {
+            alert('Você já completou esta tarefa.');
+            return;
+        }
+
+        window.open(videoUrl, '_blank');
+        buttonElement.disabled = true;
+
+        setTimeout(() => {
+            if (!videosAssistidos[platformId]) {
+                pontos += pontosGanho;
+                videosAssistidos[platformId] = true;
+                alert(`Tarefa validada! Você ganhou ${pontosGanho} EINSTEINPOINT.`);
+            }
+            atualizarInterface();
+            carregarEstadoQuests();
+        }, 10000);
+    }
+    
+    function compartilharNoTelegram(pontosGanho) {
+        const buttonElement = document.querySelector(`#quests button[onclick*='compartilharNoTelegram']`);
+        if (questTelegramShare) {
+            alert("Você já completou esta tarefa!");
+            return;
+        }
+
+        const linkConvite = gerarLinkConvite();
+        const textoCompartilhar = encodeURIComponent("Jogue EINSTEINGAME comigo e vamos minerar pontos juntos! 🧠✨");
+        window.open(`https://t.me/share/url?url=${encodeURIComponent(linkConvite)}&text=${textoCompartilhar}`, '_blank');
+        buttonElement.disabled = true;
+
+        setTimeout(() => {
+            pontos += pontosGanho;
+            questTelegramShare = true;
+            alert(`Recompensa recebida! Você ganhou ${pontosGanho} EINSTEINPOINT.`);
+            atualizarInterface();
+            carregarEstadoQuests();
+        }, 10000);
+    }
+
+    function mostrarPreview() {
+        const input = document.getElementById('printUpload');
+        const preview = document.getElementById('printPreview');
+        if (!input || !preview) return;
+
+        preview.innerHTML = '';
+        preview.style.display = 'block';
+
+        if (input.files) {
+            Array.from(input.files).forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = e => preview.appendChild(Object.assign(document.createElement('img'), {src: e.target.result}));
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+    }
+
+    function enviarPrint() {
+        const input = document.getElementById('printUpload');
+        const statusElement = document.getElementById('print_upload_status');
+        if (!input || !statusElement) return;
+        
+        if (input.files.length === 0) {
+            statusElement.textContent = 'Por favor, selecione um arquivo de imagem.';
+            return;
+        }
+        if (printsEnviados['tarefa_print']) {
+            statusElement.textContent = 'Print já enviado e validado anteriormente.';
+            return;
+        }
+
+        statusElement.textContent = 'Enviando print para validação...';
+        input.disabled = true;
+
+        setTimeout(() => {
+            if (!printsEnviados['tarefa_print']) {
+                pontos += 500;
+                printsEnviados['tarefa_print'] = true;
+                alert('Print validado! Você ganhou 500 EINSTEINPOINT.');
+            }
+            atualizarInterface();
+            carregarEstadoQuests();
+        }, 3000);
+    }
+
+    function carregarEstadoQuests() {
+        const today = new Date().toLocaleDateString('pt-BR');
+        if (ads30FreeSpinProgress.lastResetDate !== today) {
+            ads30FreeSpinProgress.count = 0;
+            ads30FreeSpinProgress.collected = false;  
+            ads30FreeSpinProgress.lastResetDate = today;
+            localStorage.setItem('ads30FreeSpinProgress', JSON.stringify(ads30FreeSpinProgress));
+        }
+
+        const adPassStatusElement = document.getElementById('adPassStatus');
+        const buyAdPassBtn = document.getElementById('buyAdPassBtn');
+        const iniciarAdIlimitadoBtn = document.getElementById('iniciarAdIlimitadoBtn');
+        if (adPassStatusElement && buyAdPassBtn && iniciarAdIlimitadoBtn) {
+            if (adPassComprado) {
+                adPassStatusElement.textContent = 'ATIVO';
+                adPassStatusElement.style.color = '#4CAF50';
+                buyAdPassBtn.style.display = 'none';
+                iniciarAdIlimitadoBtn.style.display = 'block';
+            } else {
+                adPassStatusElement.textContent = 'INATIVO';
+                adPassStatusElement.style.color = '#F44336';
+                buyAdPassBtn.style.display = 'block';
+                iniciarAdIlimitadoBtn.style.display = 'none';
+            }
+        }
+        
+        const adQuestProgress = document.getElementById('ad30_free_spin_progress');
+        if (adQuestProgress) {
+            const adsNecessarios = 30;
+            adQuestProgress.textContent = `${ads30FreeSpinProgress.count}/${adsNecessarios} assistidos hoje`;
+            const buttonElement = document.querySelector(`#quests button[onclick*='ad30_free_spin']`);
+            const statusElement = document.getElementById('ad30_free_spin_status');
+
+            if (ads30FreeSpinProgress.count >= adsNecessarios) {
+                statusElement.textContent = 'Limite diário atingido.';
+                buttonElement.disabled = true;
+            } else {
+                statusElement.textContent = `Faltam ${adsNecessarios - ads30FreeSpinProgress.count}.`;
+                buttonElement.disabled = false;
+            }
+        }
+
+        if (document.getElementById('telegram_channel_status')) {
+            document.getElementById('telegram_channel_status').textContent = videosAssistidos['telegram_channel'] ? 'Concluído!' : 'Pendente';
+            document.querySelector(`#quests button[onclick*='telegram_channel']`).disabled = videosAssistidos['telegram_channel'];
+        }
+
+        if (document.getElementById('telegram_share_status')) {
+            document.getElementById('telegram_share_status').textContent = questTelegramShare ? 'Concluído!' : 'Pendente';
+            document.querySelector(`#quests button[onclick*='compartilharNoTelegram']`).disabled = questTelegramShare;
+        }
+
+        if (document.getElementById('print_upload_status')) {
+            document.getElementById('print_upload_status').textContent = printsEnviados['tarefa_print'] ? 'Validado!' : 'Pendente';
+            document.querySelector(`#quests button[onclick='enviarPrint()']`).disabled = printsEnviados['tarefa_print'];
+            document.getElementById('printUpload').disabled = printsEnviados['tarefa_print'];
+        }
+    }
+
+    function gerarUserId() {
+        return 'user_' + Math.random().toString(36).substr(2, 9);
+    }
+
+    let userId = localStorage.getItem('userId');
+    if (!userId) {
+        userId = gerarUserId();
+        localStorage.setItem('userId', userId);
+    }
+
+    function gerarLinkConvite() {
+        return `${window.location.origin}${window.location.pathname}?ref=${userId}`;
+    }
+
+    function carregarEstadoAmigos() {
+        const amigosCountElement = document.getElementById('amigosConvidadosCount');
+        const inviteLinkElement = document.getElementById('inviteLink');
+        const recompensasContainer = document.getElementById('recompensasAmigosContainer');
+        if (!amigosCountElement || !inviteLinkElement || !recompensasContainer) return;
+
+        amigosCountElement.textContent = amigosConvidados;
+        inviteLinkElement.textContent = gerarLinkConvite();
+        recompensasContainer.innerHTML = '';
+
+        recompensasAmigos.forEach(recompensa => {
+            const div = document.createElement('div');
+            div.className = 'quest-item';
+            const coletado = recompensasAmigosColetadas[recompensa.id];
+            const podeColetar = amigosConvidados >= recompensa.quantidade && !coletado;
+            div.innerHTML = `
+                <p>Convide <strong>${recompensa.quantidade} amigos</strong> para ganhar <strong>${recompensa.pontos.toLocaleString('pt-BR')} EP</strong>.</p>
+                <button onclick="coletarRecompensaAmigo('${recompensa.id}', ${recompensa.pontos})" ${podeColetar ? '' : 'disabled'}>
+                    ${coletado ? 'Coletado' : 'Coletar'}
+                </button>`;
+            recompensasContainer.appendChild(div);
+        });
+    }
+
+    function coletarRecompensaAmigo(recompensaId, pontosRecompensa) {
+        if (recompensasAmigosColetadas[recompensaId]) {
+            alert('Recompensa já coletada!');
+            return;
+        }
+
+        const recompensa = recompensasAmigos.find(r => r.id === recompensaId);
+        if (!recompensa || amigosConvidados < recompensa.quantidade) {
+            alert(`Você precisa de ${recompensa.quantidade} amigos para coletar.`);
+            return;
+        }
+        
+        pontos += pontosRecompensa;
+        recompensasAmigosColetadas[recompensaId] = true;
+        atualizarInterface();
+        carregarEstadoAmigos();
+        alert(`Você coletou ${pontosRecompensa.toLocaleString('pt-BR')} pontos!`);
+    }
+
+    function copiarLinkConvite() {
+        const link = document.getElementById('inviteLink').textContent;
+        navigator.clipboard.writeText(link).then(() => {
+            document.getElementById('copyStatus').textContent = 'Link copiado!';
+            setTimeout(() => document.getElementById('copyStatus').textContent = '', 2000);
+        });
+    }
+
+    function mostrarInfoMineracao() {
+        const modal = document.getElementById('mineracaoInfoModal');
+        if (!modal) return;
+        modal.style.display = 'flex';
+        document.getElementById('meusPontosModal').textContent = Math.floor(pontos).toLocaleString('pt-BR');
+        document.getElementById('comunidadePontosModal').textContent = Math.floor(pontosComunidade + (pontos * 50)).toLocaleString('pt-BR');
+        document.getElementById('tokensConvertidosModal').textContent = (pontos / 1000).toFixed(3);
+    }
+
+    function fecharInfoMineracao() {
+        document.getElementById('mineracaoInfoModal').style.display = 'none';
+    }
+
+    function carregarEstadoCarteira() {
+        document.getElementById('walletTotalBalance').textContent = `R$ 0,00`;
+        document.getElementById('walletTonValue').textContent = `R$ 0,00`;
+        document.getElementById('walletTonAmount').textContent = `0.00 TON`;
+        document.querySelector('.token-item:nth-child(3) .value-usd').textContent = `R$ 0,00`;
+        document.querySelector('.token-item:nth-child(3) .amount').textContent = `0.00 USDT`;
+        document.getElementById('walletEinsteinAmount').textContent = `${Math.floor(pontos).toLocaleString('pt-BR')} EP`;
+        carregarPlanosMineracaoTokens();
+    }
+
+    function carregarEstadoNegociar() {
+        if (document.getElementById('tradeMeusTokens')) {
+            document.getElementById('tradeMeusTokens').textContent = meusTokens.toFixed(3);
+        }
+        const tradeAmountInput = document.getElementById('tradeAmount');
+        if (tradeAmountInput) tradeAmountInput.value = Math.min(10, Math.floor(meusTokens) || 1);
+        const tradeResultElement = document.getElementById('tradeResult');
+        if (tradeResultElement) {
+            tradeResultElement.textContent = '';
+            tradeResultElement.className = 'trade-result';
+        }
+    }
+
+    function executarTrade() {
+        const amountToTrade = parseFloat(document.getElementById('tradeAmount').value);
+        const tradeResultElement = document.getElementById('tradeResult');
+        if (isNaN(amountToTrade) || amountToTrade <= 0) {
+            tradeResultElement.textContent = 'Insira uma quantidade válida.';
+            tradeResultElement.className = 'trade-result lose';
+            return;
+        }
+        if (meusTokens < amountToTrade) {
+            tradeResultElement.textContent = `Tokens insuficientes!`;
+            tradeResultElement.className = 'trade-result lose';
+            return;
+        }
+        meusTokens -= amountToTrade;
+        if (Math.random() < 0.5) {
+            const gained = amountToTrade * 2;
+            meusTokens += gained;
+            tradeResultElement.textContent = `Vitória! +${gained.toFixed(3)} tokens.`;
+            tradeResultElement.className = 'trade-result win';
+        } else {
+            tradeResultElement.textContent = `Derrota! -${amountToTrade.toFixed(3)} tokens.`
+            tradeResultElement.className = 'trade-result lose';
+        }
+        atualizarInterface();
+        carregarEstadoNegociar();
+    }
+    
+    function carregarUpgradesToque() {
+        const container = document.getElementById('upgradesToqueContainer');
+        const pontosPorToqueElement = document.getElementById('pontosPorToque');
+        if (!container || !pontosPorToqueElement) return;
+
+        pontosPorToqueElement.textContent = pontosPorToque;
+        container.innerHTML = '';
+
+        const proximoEPUpgrade = upgradesToqueEP.find(u => u.nivel === upgradeToqueNivel + 1);
+        if (proximoEPUpgrade) {
+            container.innerHTML += `<div class="quest-item"><p><strong>Upgrade Nv. ${proximoEPUpgrade.nivel}:</strong> +${proximoEPUpgrade.b_por_toque} p/ toque</p><p>Custo: ${proximoEPUpgrade.custo.toLocaleString('pt-BR')} EP</p><button onclick="comprarUpgradeToqueEP(${proximoEPUpgrade.custo}, ${proximoEPUpgrade.b_por_toque})">Comprar</button></div>`;
+        }
+
+        if (upgradeToqueNivel >= upgradesToqueEP[upgradesToqueEP.length - 1].nivel) {
+            const proximoTokenUpgrade = upgradesToqueToken.find(u => u.nivel === upgradeToqueNivel + 1);
+            if (proximoTokenUpgrade) {
+                container.innerHTML += `<div class="quest-item"><p><strong>Upgrade:</strong> +${proximoTokenUpgrade.b_por_toque} p/ toque</p><p>Custo: ${proximoTokenUpgrade.custo.toLocaleString('pt-BR')} ${proximoTokenUpgrade.nomeCusto}</p><button onclick="comprarUpgradeToqueToken(${proximoTokenUpgrade.custo}, ${proximoTokenUpgrade.b_por_toque}, '${proximoTokenUpgrade.tipo}', false)">Comprar</button></div>`;
+            }
+        }
+
+        if (!upgradePromoToqueComprado && pontosPorToque < upgradeToquePromocao.b_por_toque) {
+            container.innerHTML += `<div class="quest-item" style="background-color: #420a3b;"><p><strong>PROMO:</strong> +${upgradeToquePromocao.b_por_toque} p/ toque</p><p>Custo: ${upgradeToquePromocao.custo.toLocaleString('pt-BR')} ${upgradeToquePromocao.nomeCusto}</p><button onclick="comprarUpgradeToqueToken(${upgradeToquePromocao.custo}, ${upgradeToquePromocao.b_por_toque}, '${upgradeToquePromocao.tipo}', true)">Comprar!</button></div>`;
+        }
+    }
+
+    function comprarUpgradeToqueEP(custoEP, novoPontosPorToque) {
+        if (pontos < custoEP) return alert(`EP insuficiente.`);
+        pontos -= custoEP;
+        pontosPorToque = novoPontosPorToque;
+        upgradeToqueNivel++;
+        atualizarInterface();
+        carregarUpgradesToque();
+        alert(`Upgrade comprado!`);
+    }
+
+    function comprarUpgradeToqueToken(custoToken, novoPontosPorToque, tipoMoeda, isPromo = false) {
+        if (meusTokens < custoToken) return alert(`Tokens insuficientes.`);
+        meusTokens -= custoToken;
+        pontosPorToque = novoPontosPorToque;
+        if (isPromo) upgradePromoToqueComprado = true;
+        else upgradeToqueNivel++;
+        atualizarInterface();
+        carregarUpgradesToque();
+        alert(`Upgrade comprado!`);
+    }
+
+    function carregarPlanosMineracaoTokens() {
+        const statusElement = document.getElementById('tokenMinePlanStatus');
+        const pendingTokensElement = document.getElementById('tokenMinePending');
+        const timeRemainingElement = document.getElementById('tokenMineTimeRemaining');
+        const claimBtn = document.getElementById('claimTokensBtn');
+        const messageElement = document.getElementById('claimTokensMessage');
+        const plansContainer = document.getElementById('tokenMiningPlansContainer');
+        if (!statusElement || !pendingTokensElement || !timeRemainingElement || !claimBtn || !messageElement || !plansContainer) return;
+
+        plansContainer.innerHTML = '';
+        const now = Date.now();
+
+        if (tokenMiningPlanActive.active) {
+            const timeLeftMs = tokenMiningPlanActive.endTime - now;
+            const daysLeft = Math.max(0, Math.floor(timeLeftMs / 86400000));
+            statusElement.textContent = tokenMiningPlans.find(p => p.id === tokenMiningPlanActive.planId).name;
+            pendingTokensElement.textContent = tokenMiningPlanActive.pendingTokens.toFixed(3);
+            timeRemainingElement.textContent = `${daysLeft} dias`;
+            const timeSinceLastClaim = now - tokenMiningPlanActive.lastClaimTime;
+            const MS_IN_24_HOURS = 86400000;
+            if (timeSinceLastClaim >= MS_IN_24_HOURS) {
+                claimBtn.disabled = false;
+                messageElement.textContent = 'Clique para coletar!';
+            } else {
+                claimBtn.disabled = true;
+                const nextClaimTime = MS_IN_24_HOURS - timeSinceLastClaim;
+                const nextClaimHours = Math.floor(nextClaimTime / 3600000);
+                messageElement.textContent = `Próxima coleta em ${nextClaimHours}h.`;
+            }
+            plansContainer.style.display = 'none';
+        } else {
+            statusElement.textContent = 'Nenhum';
+            pendingTokensElement.textContent = '0.00';
+            timeRemainingElement.textContent = '0 dias';
+            claimBtn.disabled = true;
+            messageElement.textContent = 'Compre um plano para começar.';
+            plansContainer.style.display = 'block';
+
+            tokenMiningPlans.forEach(plan => {
+                const div = document.createElement('div');
+                div.className = 'token-mine-plan';
+                div.innerHTML = `<h4>${plan.name}</h4><p>Custo: ${plan.cost.toFixed(1)} TON</p><p>Minera: ${Math.round(plan.tokensPerHour * 24 * plan.durationDays)} TON em ${plan.durationDays} dias</p><p>Taxa: ${plan.tokensPerHour.toFixed(4)} TON/h</p><button onclick="comprarPlanoMineracaoToken('${plan.id}')">Comprar</button>`;
+                plansContainer.appendChild(div);
+            });
+        }
+    }
+
+    function comprarPlanoMineracaoToken(planId) {
+        const plan = tokenMiningPlans.find(p => p.id === planId);
+        if (!plan || tokenMiningPlanActive.active || meusTokens < plan.cost) {
+            alert('Não é possível comprar este plano.');
+            return;
+        }
+        if (confirm(`Comprar Plano ${plan.name} por ${plan.cost.toFixed(1)} TON?`)) {
+            meusTokens -= plan.cost;
+            const now = Date.now();
+            tokenMiningPlanActive = {
+                active: true, planId: plan.id, tokensPerHour: plan.tokensPerHour,
+                startTime: now, endTime: now + (plan.durationDays * 86400000),
+                lastClaimTime: now, pendingTokens: 0
+            };
+            alert(`Plano "${plan.name}" ativado!`);
+            atualizarInterface();
+            carregarPlanosMineracaoTokens();
+        }
+    }
+
+    function coletarTokensMinerados() {
+        if (!tokenMiningPlanActive.active || (Date.now() - tokenMiningPlanActive.lastClaimTime < 86400000)) {
+            alert('Ainda não é hora de coletar.');
+            return;
+        }
+        meusTokens += tokenMiningPlanActive.pendingTokens;
+        const collectedAmount = tokenMiningPlanActive.pendingTokens;
+        tokenMiningPlanActive.pendingTokens = 0;
+        tokenMiningPlanActive.lastClaimTime = Date.now();
+        alert(`Você coletou ${collectedAmount.toFixed(3)} TON!`);
+        atualizarInterface();
+        carregarPlanosMineracaoTokens();
+    }
+
+    function initGame() {
+        try {
+            document.getElementById("minerador").addEventListener("click", minerar);
+            setInterval(minerarAuto, 10000);
+            if (isFirstTimeGameLoad) {
+                localStorage.setItem('isFirstTimeGameLoad', 'false');
+                localStorage.setItem('pontosPorToqueOriginal', pontosPorToque);
+            }
+        } catch (error) {
+            console.error("Erro na inicialização:", error);
+        }
+        setTimeout(() => {
+            try {
+                document.getElementById("intro").style.display = "none";
+                abrirAba('jogo');
+                atualizarInterface();
+            } catch(e) {
+                console.error("Erro na UI:", e);
+                document.getElementById("intro").style.display = "none";
+                document.getElementById("jogo").classList.add("ativo");
+            }
+        }, 4000);
+        setupWalletListeners();
+    }
+    
+    function setupWalletListeners() {
+        document.querySelectorAll('#carteira .tab-link').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('#carteira .tab-link, #carteira .tab-content').forEach(el => el.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab).classList.add('active');
+            });
+        });
+        document.getElementById('copy-address-btn')?.addEventListener('click', () => {
+            navigator.clipboard.writeText("EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB12B12CdeFG34").then(() => {
+                const addressEl = document.getElementById('address-text');
+                const originalText = addressEl.textContent;
+                addressEl.textContent = "Copiado!";
+                setTimeout(() => addressEl.textContent = originalText, 2000);
+            });
+        });
+        window.addEventListener('click', e => e.target.classList.contains('modal') && closeModal(e.target.id));
+    }
+
+    function openModal(modalId) { document.getElementById(modalId).style.display = 'flex'; }
+    function closeModal(modalId) { document.getElementById(modalId).style.display = 'none'; }
+    
+    // --- INÍCIO: JAVASCRIPT DO JOGO DA MEMÓRIA ---
+    const memoryGameBoard = document.getElementById('game-board');
+    const memoryMatchedPairsSpan = document.getElementById('matched-pairs');
+    const memoryTotalPairsSpan = document.getElementById('total-pairs');
+    const memoryResetButton = document.getElementById('reset-button-memory');
+    const memoryGameMessage = document.getElementById('game-message');
+    const memoryTimeLeftSpan = document.getElementById('time-left');
+
+    const originalNftImageUrls = ['carta1.png', 'carta2.png', 'carta3.png', 'carta4.png', 'carta5.png', 'carta6.png', 'carta7.png', 'carta8.png'];
+    const memoryBoardCols = 4;
+    const memoryBoardRows = 6;
+    const memoryBoardArea = memoryBoardCols * memoryBoardRows;
+    const memoryNumPairs = Math.min(memoryBoardArea / 2, originalNftImageUrls.length);
+
+    let memoryGameCards = [], memoryFlippedCards = [], memoryMatchedPairs = 0, memoryLockBoard = false, memoryTimerInterval, memoryTimeLeft = 30;
+
+    function initializeMemoryGame() {
+        memoryGameCards = [], memoryFlippedCards = [], memoryMatchedPairs = 0, memoryLockBoard = false;
+        memoryGameBoard.innerHTML = '', memoryGameMessage.textContent = '';
+        
+        clearInterval(memoryTimerInterval);
+        memoryTimeLeft = 30;
+        memoryTimeLeftSpan.textContent = memoryTimeLeft;
+        startMemoryTimer();
+
+        if (originalNftImageUrls.length < memoryNumPairs) {
+            memoryGameMessage.textContent = "Erro: faltam imagens de NFT!";
+            return;
+        }
+        
+        const selectedImageUrls = originalNftImageUrls.slice(0, memoryNumPairs);
+        let cardsContent = [...selectedImageUrls, ...selectedImageUrls];
+        cardsContent.sort(() => Math.random() - 0.5);
+
+        cardsContent.forEach((imageUrl, index) => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.dataset.imageUrl = imageUrl;
+            
+            const front = document.createElement('div');
+            front.className = 'front';
+            const img = document.createElement('img');
+            img.src = imageUrl;
+            img.alt = `NFT ${index}`;
+            img.onerror = () => console.error(`Erro ao carregar imagem: ${imageUrl}`);
+            front.appendChild(img);
+
+            const back = document.createElement('div');
+            back.className = 'back';
+            back.textContent = '?';
+
+            card.append(front, back);
+            card.addEventListener('click', () => flipMemoryCard(card));
+            memoryGameBoard.appendChild(card);
+            memoryGameCards.push(card);
+        });
+
+        memoryTotalPairsSpan.textContent = memoryNumPairs;
+        updateMemoryStatus();
+    }
+
+    function flipMemoryCard(card) {
+        if (memoryLockBoard || card.classList.contains('flipped') || card.classList.contains('matched') || memoryTimeLeft <= 0) return;
+        card.classList.add('flipped');
+        memoryFlippedCards.push(card);
+        if (memoryFlippedCards.length === 2) {
+            memoryLockBoard = true;
+            checkForMemoryMatch();
+        }
+    }
+
+    function checkForMemoryMatch() {
+        const [card1, card2] = memoryFlippedCards;
+        card1.dataset.imageUrl === card2.dataset.imageUrl ? disableMemoryCards() : unflipMemoryCards();
+    }
+
+    function disableMemoryCards() {
+        memoryFlippedCards.forEach(card => card.classList.add('matched'));
+        memoryMatchedPairs++;
+        updateMemoryStatus();
+        resetMemoryFlippedCards();
+        if (memoryMatchedPairs === memoryNumPairs) {
+            memoryGameMessage.textContent = 'Parabéns! Você encontrou todas!';
+            clearInterval(memoryTimerInterval);
+            memoryLockBoard = true;
+        }
+    }
+
+    function unflipMemoryCards() {
+        setTimeout(() => {
+            memoryFlippedCards.forEach(card => card.classList.remove('flipped'));
+            resetMemoryFlippedCards();
+        }, 1200);
+    }
+
+    function resetMemoryFlippedCards() {
+        memoryFlippedCards = [];
+        memoryLockBoard = false;
+    }
+
+    function updateMemoryStatus() {
+        memoryMatchedPairsSpan.textContent = memoryMatchedPairs;
+    }
+
+    function startMemoryTimer() {
+        memoryTimerInterval = setInterval(() => {
+            memoryTimeLeft--;
+            memoryTimeLeftSpan.textContent = memoryTimeLeft;
+            if (memoryTimeLeft <= 0) {
+                clearInterval(memoryTimerInterval);
+                memoryLockBoard = true;
+                memoryGameMessage.textContent = `Tempo esgotado! Você encontrou ${memoryMatchedPairs} de ${memoryNumPairs} pares.`;
+            }
+        }, 1000);
+    }
+    
+    if (memoryResetButton) memoryResetButton.addEventListener('click', initializeMemoryGame);
+    // --- FIM: JAVASCRIPT DO JOGO DA MEMÓRIA ---
+</script>
+</body>
+</html>
