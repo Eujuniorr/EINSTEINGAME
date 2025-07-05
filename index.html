@@ -1,0 +1,3321 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Meu App de Jogo</title>
+
+    <style>
+        /* --- CSS GERAL (O mesmo do código anterior, sem alterações) --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --background-color: #1a1a1a;
+            --surface-color: #2c2c2c;
+            --text-color: #f0f0f0;
+            --gold-color: #ffd700;
+            --energy-color: #00ffdd;
+            --button-bg-dark: #3a3a3a;
+            --button-text-light: #f0f0f0;
+            --icon-color: #e0e0e0;
+            --navbar-bg: #1f1f1f;
+            --modal-bg: #333333;
+            --modal-overlay-bg: rgba(0, 0, 0, 0.7);
+            --level-bar-bg: #555;
+            --level-fill-color: #4CAF50;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden; 
+            align-items: center;
+            
+            background-image: url('background.png');
+            background-size: cover; 
+            background-position: center; 
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
+        .game-container {
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-color);
+            width: 100%;
+            max-width: 480px;
+            background-color: rgba(44, 44, 44, 0.5); 
+            background-image: url('game-background.png'); 
+            background-size: cover; 
+            background-position: center; 
+            background-repeat: no-repeat; 
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            padding: 15px; 
+            box-sizing: border-box;
+            margin: 0 auto;
+            user-select: none;
+            flex-grow: 1;
+            max-height: calc(100vh - 31.5px);
+            position: relative; 
+            overflow: hidden;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            padding-top: 10px;
+        }
+
+        .header-button {
+            background: none;
+            border: none;
+            color: var(--icon-color);
+            font-size: 1.8em;
+            cursor: pointer;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+        }
+
+        .header-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .header-button i {
+            color: var(--icon-color);
+        }
+        
+        .center-header-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex-grow: 1;
+        }
+
+        .level-and-tph-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center; 
+            gap: 10px; 
+            width: 100%; 
+            margin-bottom: 5px; 
+            padding: 0 5px; 
+            box-sizing: border-box; 
+        }
+
+        .level-area {
+            flex-grow: 1; 
+            background-color: var(--level-bar-bg);
+            border-radius: 10px;
+            overflow: hidden;
+            height: 40px; 
+            display: flex;
+            flex-direction: column; 
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            padding: 5px 0; 
+            box-sizing: border-box; 
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        .level-area:hover {
+            background-color: rgba(255, 255, 255, 0.1); 
+        }
+        .level-area:active {
+            transform: scale(0.98);
+        }
+
+        .level-text-display {
+            font-size: 0.9em;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 2px;
+            white-space: nowrap; 
+        }
+        
+        .level-area .level-bar-container { 
+            width: 90%; 
+            height: 10px; 
+            background-color: rgba(0,0,0,0.3); 
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 0; 
+            cursor: default;
+        }
+
+
+        #level-bar {
+            height: 100%;
+            width: 0%;
+            background-color: var(--level-fill-color);
+            border-radius: 6px; 
+            transition: width 0.2s linear;
+        }
+
+        .tph-display {
+            font-size: 14px;
+            background-color: rgba(44, 16, 66, 0.7); 
+            border-radius: 8px;
+            padding: 5px 10px;
+            text-align: center;
+            white-space: nowrap;
+            flex-shrink: 0; 
+            height: 40px; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: var(--text-color);
+            box-sizing: border-box;
+        }
+
+        .score-display {
+            font-size: 2.2em; 
+            font-weight: 700;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+            height: auto;
+            text-align: center;
+            margin-top: 100px;
+            margin-bottom: 0;
+        }
+        
+        .einstein-info-row {
+            display: flex;
+            align-items: center; 
+            gap: 8px; 
+            margin-bottom: 5px; 
+            font-size: 0.7em; 
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .score-display .score-value {
+            font-size: 1.5em; 
+            color: var(--gold-color);
+            margin-top: 5px; 
+        }
+
+        .ticket-wrapper {
+            position: relative;
+            margin: 0; 
+            display: flex; 
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ticket-owned-label {
+            display: none; 
+            position: absolute;
+            bottom: -6px; 
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--level-fill-color);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 5px;
+            font-size: 8px; 
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .ticket-button {
+            background-color: transparent; 
+            border: none;
+            border-radius: 5px;
+            width: 45px;
+            height: 28px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.1s, filter 0.2s, opacity 0.2s;
+            position: static;
+            
+            background-image: url('ingresso.jpg'); 
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            color: white; 
+            font-size: 0.5em;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.7); 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .ticket-button:hover:not(:disabled) {
+            transform: scale(1.02);
+        }
+        .ticket-button:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+        .ticket-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        .ticket-button.owned {
+            filter: grayscale(80%);
+            cursor: default;
+            transform: none;
+        }
+        .ticket-button.hidden {
+            display: none !important;
+        }
+
+        .main-tapper {
+            flex-grow: 1; 
+            display: flex;
+            justify-content: center; 
+            align-items: center; 
+            position: relative;
+            padding-top: 5px; 
+            padding-bottom: 5px;
+        }
+        
+        .side-buttons-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: absolute;
+            z-index: 10;
+        }
+
+        .left-group {
+            left: 0px; 
+            transform: translateX(-5px); 
+            bottom: 10px; 
+        }
+
+        .right-group {
+            right: 0px;
+            transform: translateX(5px);
+            bottom: 10px;
+        }
+
+        .side-button {
+            background-color: var(--button-bg-dark);
+            border-radius: 8px;
+            padding: 6px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            width: 40px;
+            height: 40px;
+        }
+        .side-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .side-button:active {
+            transform: scale(0.95);
+        }
+        .side-button img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        #tapper-button {
+            width: 250px; 
+            height: 250px;
+            border-radius: 50%;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            cursor: pointer;
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden; 
+            padding: 0;
+        }
+
+        #tapper-button img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: contain; 
+        }
+
+        #tapper-button:active {
+            transform: scale(0.95);
+            box-shadow: none;
+        }
+
+        .floating-text {
+            position: absolute;
+            font-size: 1.6em;
+            font-weight: 600;
+            color: var(--gold-color);
+            opacity: 1;
+            animation: floatUp 1s ease-out forwards;
+            pointer-events: none;
+        }
+        @keyframes floatUp {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-50px); }
+        }
+
+        .stats {
+            margin-top: 0px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            padding-bottom: 10px;
+        }
+        
+        .energy-bar-container {
+            width: 90%;
+            max-width: 320px;
+            background-color: #444;
+            border-radius: 10px;
+            position: relative;
+            height: 22px; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        #energy-bar {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%; 
+            background-color: var(--energy-color);
+            border-radius: 10px;
+            transition: width 0.2s linear;
+        }
+
+        .energy-text {
+            position: relative;
+            z-index: 2;
+            font-weight: 600;
+            font-size: 0.9em;
+            color: #ffffff;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+        }
+
+        .bottom-navbar {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--navbar-bg);
+            padding: 10px 0;
+            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+            height: 31.5px;
+        }
+
+        .nav-button {
+            flex: 1;
+            padding: 5px;
+            font-size: 0.8em;
+            font-weight: 600;
+            background-color: transparent;
+            color: var(--button-text-light);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s ease;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            height: 100%;
+            justify-content: center;
+        }
+
+        .nav-button:hover { background-color: rgba(255, 255, 255, 0.1); }
+        .nav-button:active { transform: scale(0.95); }
+        .nav-button:disabled { opacity: 0.7; cursor: not-allowed; }
+        
+        .nav-button .icon {
+            font-size: 1.2em;
+            color: var(--icon-color);
+        }
+        .nav-button .label {
+            font-size: 0.65em;
+            opacity: 0.9;
+        }
+
+        .floating-button {
+            position: fixed;
+            width: 60px;
+            height: 60px;
+            background-image: url('flutuante.jpg');
+            background-size: cover;
+            background-position: center; 
+            background-repeat: no-repeat;
+            background-color: transparent;
+            color: transparent;
+            border: none;
+            border-radius: 50%; 
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.8em;
+            cursor: grab;
+            transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s;
+            z-index: 1001; 
+            overflow: hidden;
+            touch-action: none; 
+        }
+        .floating-button:active {
+            cursor: grabbing;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+            transform: scale(0.95);
+        }
+        .floating-button.hidden {
+            display: none !important;
+        }
+
+        #game-message {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0,0,0,0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            z-index: 3000;
+            display: none;
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--modal-overlay-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background-color: var(--modal-bg);
+            color: var(--text-color);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            width: 95%;
+            max-width: 450px;
+            height: 80%;
+            overflow-y: auto;
+            position: relative;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .modal-close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 1.8em;
+            color: var(--icon-color);
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+            z-index: 10;
+        }
+
+        .modal-close-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+            color: var(--gold-color);
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+
+        .modal-content p {
+            font-size: 1.1em;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+        
+        #improve-modal .modal-content {
+             padding: 15px;
+        }
+
+        .improve-category-buttons {
+            display: flex;
+            justify-content: center; 
+            align-items: center; 
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .improve-category-buttons button {
+            background-color: var(--button-bg-dark);
+            color: var(--button-text-light);
+            border: 2px solid transparent;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.2s, border-color 0.2s;
+            font-size: 0.8em;
+        }
+
+        .improve-category-buttons button:hover {
+            background-color: #555;
+        }
+
+        .improve-category-buttons button.active-category {
+            background-color: var(--primary-color);
+            border-color: var(--gold-color);
+            color: white;
+        }
+
+        .card-section {
+            display: none;
+            width: 100%;
+        }
+
+        .card-section.active-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            align-items: center;
+        }
+
+        .cartao {
+            background-color: var(--surface-color);
+            border-radius: 12px;
+            padding: 15px;
+            width: 90%;
+            max-width: 350px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+            border: 1px solid #444;
+            text-align: left;
+        }
+
+        .cartao-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .cartao-header img {
+            width: 70px;
+            height: 70px;
+            border-radius: 8px;
+            object-fit: cover;
+            flex-shrink: 0;
+            background-color: #555;
+        }
+
+        .cartao-info {
+            flex-grow: 1;
+        }
+        
+        .cartao-info p {
+            margin: 0;
+            padding: 0;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        .cartao-info .card-name {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: var(--text-color);
+            margin-bottom: 4px;
+        }
+
+        .cartao .level-info {
+            color: var(--level-fill-color);
+            font-weight: bold;
+        }
+        
+        .cartao .description-info{
+             font-size: 0.8em;
+             color: #ccc;
+             margin-top: 4px;
+        }
+
+        .cartao .bonus-info {
+            color: var(--energy-color);
+            margin-top: 4px;
+        }
+
+        .buy-button-container {
+            margin-top: 15px;
+        }
+        .buy-button-container button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-size: 1em;
+            font-weight: bold;
+        }
+        .buy-button-container button:hover:not(:disabled) {
+             background-color: #0056b3;
+        }
+        .buy-button-container button:disabled {
+            background-color: var(--secondary-color);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .cost-text {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        .cost-text img {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* --- ESTILOS CAMPO MINADO --- */
+        #minas-modal .modal-content {
+            max-width: 450px;
+        }
+        #minas-config {
+            background-color: #222; 
+            padding: 15px; 
+            border-radius: 8px; 
+            max-width: 400px; 
+            margin: 15px auto; 
+            display: flex; 
+            justify-content: space-around; 
+            align-items: center; 
+            gap: 10px;
+            width: 100%;
+        }
+        #minas-config label {
+            font-size: 14px; 
+            display: block; 
+            margin-bottom: 5px;
+        }
+        #minas-config input, #minas-config select {
+            width: 100px; 
+            padding: 8px; 
+            border-radius: 5px; 
+            border: 1px solid #555; 
+            background-color: #333; 
+            color: white;
+            box-sizing: border-box;
+        }
+        #minas-info {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background-color: #222;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 400px;
+        }
+        #minas-info p {
+            margin: 0;
+            font-size: 14px;
+        }
+        #minas-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-gap: 5px;
+            width: 100%;
+            max-width: 350px;
+            margin: 20px auto;
+        }
+        .mina-cell {
+            width: 100%;
+            padding-bottom: 100%;
+            position: relative;
+            background-color: #444;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .mina-cell:hover {
+            background-color: #555;
+        }
+        .mina-cell.revealed {
+            background-color: #2a2a2a;
+            cursor: default;
+        }
+        .mina-cell.bomb {
+            background-color: #ff4d4d;
+        }
+        .mina-cell-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        #minasControles {
+            display: flex;
+            flex-direction: column; /* Changed to column */
+            align-items: center; /* Center items */
+            gap: 15px;
+            margin-top: 20px;
+        }
+        #minasControles button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: none;
+            color: white;
+            cursor: pointer;
+            width: 80%; /* Make buttons wider */
+            max-width: 250px;
+        }
+        #btnIniciarMinas { background-color: var(--primary-color); }
+        #btnColetarMinas { background-color: var(--level-fill-color); }
+        #btnComprarRodadasMinas { background-color: var(--gold-color); color: #1a1a1a; font-weight: bold; }
+        #btnIniciarMinas:disabled, #btnColetarMinas:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
+        #minasStatus {
+            margin-top: 20px; 
+            font-weight: bold;
+        }
+        #minas-purchase-container {
+            display: none; /* Hidden by default */
+            width: 100%;
+            text-align: center;
+        }
+        
+        .intro-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--surface-color); 
+            background-image: url('background.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: var(--text-color);
+            z-index: 3000;
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.8s ease-out, visibility 0.8s ease-out; 
+            box-sizing: border-box;
+            padding: 20px;
+        }
+
+        .intro-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .intro-screen h1 {
+            color: var(--gold-color);
+            font-size: 2.8em;
+            margin-bottom: 15px;
+            opacity: 0;
+            transform: translateY(-20px);
+            animation: fadeInSlideUp 1s ease-out 0.5s forwards;
+        }
+
+        .intro-screen p {
+            font-size: 1.3em;
+            margin-bottom: 30px;
+            max-width: 80%;
+            line-height: 1.5;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInSlideUp 1s ease-out 1s forwards;
+        }
+
+        #start-game-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
+            opacity: 0;
+            transform: scale(0.8);
+            animation: fadeInScale 0.8s ease-out 1.5s forwards;
+        }
+
+        #start-game-button:hover {
+            background-color: #0056b3;
+        }
+
+        #start-game-button:active {
+            transform: scale(0.98);
+        }
+
+        @keyframes fadeInSlideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .side-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--modal-overlay-bg);
+            z-index: 2499;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .side-menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .side-menu {
+            position: fixed;
+            top: 0;
+            right: -280px; 
+            width: 280px;
+            height: 100%;
+            background-color: var(--modal-bg);
+            z-index: 2500;
+            transition: right 0.3s ease-in-out;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .side-menu.active {
+            right: 0;
+        }
+        .side-menu-close-button {
+            background: none;
+            border: none;
+            color: var(--icon-color);
+            font-size: 2em;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            cursor: pointer;
+        }
+        .side-menu h2 {
+            text-align: center;
+            color: var(--gold-color);
+            margin-top: 20px;
+            margin-bottom: 30px;
+        }
+        .side-menu ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .side-menu ul li a {
+            display: block;
+            padding: 15px 10px;
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 1.1em;
+            border-radius: 8px;
+            transition: background-color 0.2s;
+        }
+        .side-menu ul li a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        #level-progress-modal .modal-content {
+            max-width: 350px;
+        }
+
+        #level-list {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+            text-align: left;
+        }
+
+        #level-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #level-list li:last-child {
+            border-bottom: none;
+        }
+
+        #level-list li.current-level {
+            background-color: rgba(76, 175, 80, 0.2);
+            border-radius: 5px;
+            padding: 8px 10px;
+            font-weight: bold;
+            color: var(--level-fill-color);
+        }
+
+        #level-list li span:first-child {
+            flex-grow: 1;
+        }
+
+        #level-list li .points-required {
+            font-size: 0.8em;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .wallet-container, .modal-content.wallet {
+            --bg-color: #121212;
+            --surface-color: #1e1e1e;
+            --primary-color: #8A2BE2;
+            --primary-light: #9d4edd;
+            --text-color: #f0f0f0;
+            --text-secondary: #a0a0a0;
+            --green: #28a745;
+            --red: #dc3545;
+            --border-color: #333;
+        }
+
+        #carteira, #memoryGame {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .wallet-container {
+            width: 100%;
+            max-width: 420px;
+            background-color: var(--surface-color);
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            margin: 0 auto;
+        }
+
+        .wallet-header {
+            padding: 24px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+            background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+        }
+
+        .wallet-header .balance-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .wallet-header .total-balance {
+            font-size: 40px;
+            font-weight: 700;
+            margin: 0;
+            color: var(--text-color);
+        }
+
+        .wallet-address {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(0,0,0,0.2);
+            padding: 8px 12px;
+            border-radius: 16px;
+            margin-top: 16px;
+            font-size: 13px;
+            font-family: monospace;
+            gap: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .wallet-address:hover {
+            background-color: rgba(0,0,0,0.4);
+        }
+        .wallet-address span {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .wallet-address svg {
+            width: 16px;
+            height: 16px;
+            fill: var(--text-secondary);
+            flex-shrink: 0;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        #rewards-modal .modal-content {
+            overflow: visible; 
+        }
+
+        .roulette-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 40px;
+        }
+
+        .roulette-pointer {
+            position: absolute;
+            top: 50%;
+            right: -25px;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-top: 20px solid transparent;
+            border-bottom: 20px solid transparent;
+            border-right: 30px solid var(--gold-color);
+            z-index: 10;
+        }
+
+        #roulette-wheel {
+            width: 100%;
+            height: 100%;
+            border: 5px solid #fff;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            transition: transform 5s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        #roulette-wheel .slice {
+            overflow: hidden;
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 50%;
+            height: 50%;
+            transform-origin: 0% 100%;
+        }
+
+        #roulette-wheel .slice .slice-contents {
+            position: absolute;
+            left: -100%;
+            width: 200%;
+            height: 200%;
+            text-align: center;
+            transform: skewY(54deg) rotate(18deg);
+            padding-top: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+        }
+        
+        .slice:nth-child(1) { transform: rotate(0deg) skewY(-54deg); background-color: #8A2BE2; }
+        .slice:nth-child(2) { transform: rotate(36deg) skewY(-54deg); background-color: #5F9EA0; }
+        .slice:nth-child(3) { transform: rotate(72deg) skewY(-54deg); background-color: #DC143C; }
+        .slice:nth-child(4) { transform: rotate(108deg) skewY(-54deg); background-color: #FF8C00; }
+        .slice:nth-child(5) { transform: rotate(144deg) skewY(-54deg); background-color: #2E8B57; }
+        .slice:nth-child(6) { transform: rotate(180deg) skewY(-54deg); background-color: #4169E1; }
+        .slice:nth-child(7) { transform: rotate(216deg) skewY(-54deg); background-color: #D2691E; }
+        .slice:nth-child(8) { transform: rotate(252deg) skewY(-54deg); background-color: #9932CC; }
+        .slice:nth-child(9) { transform: rotate(288deg) skewY(-54deg); background-color: #FF4500; }
+        .slice:nth-child(10) { transform: rotate(324deg) skewY(-54deg); background-color: #008080; }
+
+        #spin-button {
+            margin-top: 30px;
+            padding: 12px 25px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: white;
+            background-color: var(--level-fill-color);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        #spin-button:disabled {
+            background-color: var(--secondary-color);
+            cursor: not-allowed;
+        }
+
+        #spin-button:not(:disabled):hover {
+            background-color: #3e8e41;
+        }
+        #spin-button:not(:disabled):active {
+            transform: scale(0.97);
+        }
+
+        .friends-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 10px;
+            background-color: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .friends-header h3 {
+            margin: 0;
+            font-size: 1em;
+        }
+        #invite-friend-button {
+            padding: 8px 15px;
+            font-size: 0.9em;
+            font-weight: bold;
+            color: white;
+            background-color: var(--primary-color);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        #invite-friend-button:hover {
+            background-color: #0056b3;
+        }
+        .rewards-list {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .reward-item {
+            background-color: var(--surface-color);
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+        .reward-item.locked {
+            opacity: 0.5;
+        }
+        .reward-info {
+            text-align: left;
+        }
+        .reward-info .goal {
+            font-weight: bold;
+            font-size: 1em;
+        }
+        .reward-info .progress-text {
+            font-size: 0.8em;
+            color: var(--text-secondary);
+        }
+        .reward-action button {
+            padding: 8px 15px;
+            font-size: 0.9em;
+            font-weight: bold;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            color: white;
+        }
+        .reward-action .claim-btn {
+             background-color: var(--level-fill-color);
+        }
+        .reward-action .claim-btn:disabled {
+            background-color: var(--secondary-color);
+            cursor: not-allowed;
+        }
+        .reward-action .claimed-btn {
+            background-color: var(--secondary-color);
+            cursor: default;
+        }
+        
+        #tasks-modal .modal-content {
+            gap: 20px;
+        }
+        .task-section {
+            background-color: var(--surface-color);
+            border-radius: 12px;
+            padding: 15px;
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #444;
+        }
+        .task-section h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            color: var(--text-color);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+        .task-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .task-item-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .task-item-info i {
+            font-size: 1.5em;
+        }
+        .task-item-info p {
+            margin: 0;
+            font-size: 1em;
+        }
+        .task-item p .reward {
+            font-weight: bold;
+            color: var(--gold-color);
+        }
+        .task-button {
+            padding: 8px 12px;
+            font-size: 0.9em;
+            font-weight: bold;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            color: white;
+            background-color: var(--primary-color);
+            transition: background-color 0.2s;
+        }
+        .task-button:disabled {
+            background-color: var(--secondary-color);
+            cursor: not-allowed;
+        }
+        .task-section .task-note {
+            font-size: 0.75em;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        /* --- NFT STORE STYLES --- */
+        #nft-store-modal .nft-section {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        #nft-store-modal .nft-section h3 {
+            color: var(--gold-color);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+        #nft-store-modal .nft-item {
+            background-color: var(--surface-color);
+            border: 1px solid #444;
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        #nft-store-modal .nft-item img {
+            width: 100%;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        #nft-store-modal .nft-item p {
+            margin: 5px 0;
+            font-size: 1em;
+        }
+        #nft-store-modal .nft-item button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            width: 100%;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        #nft-store-modal .nft-item button:disabled {
+            background-color: var(--secondary-color);
+            cursor: not-allowed;
+        }
+        
+        /* --- MEMORY GAME STYLES --- */
+        #memoryGame {
+            font-family: 'Montserrat', sans-serif;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #memoryGame h1 {
+            color: #00bcd4;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+            text-align: center;
+        }
+
+        #memoryGame .game-container {
+            background-color: rgba(0, 0, 0, 0.4);
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        #memoryGame .status {
+            font-size: 1em;
+            margin-bottom: 15px;
+            color: #e0e0e0;
+            font-weight: 700;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        #memoryGame .timer {
+            font-size: 1em;
+            color: #00bcd4;
+            font-weight: 700;
+        }
+
+        #memory-game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-top: 15px;
+            perspective: 1000px;
+            width: 100%;
+            max-width: 320px;
+        }
+
+        #memory-game-board .card {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background-color: #3f005a;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.6s cubic-bezier(0.25, 0.1, 0.25, 1);
+            transform-style: preserve-3d;
+            position: relative;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
+        }
+
+        #memory-game-board .card:hover { transform: scale(1.02); }
+        #memory-game-board .card.flipped { transform: rotateY(180deg); }
+        #memory-game-board .card.matched { opacity: 0.5; cursor: default; pointer-events: none; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); }
+        #memory-game-board .card .front,
+        #memory-game-board .card .back {
+            position: absolute;
+            width: 100%; height: 100%;
+            backface-visibility: hidden;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+        #memory-game-board .card .front { background-color: #e0e0e0; transform: rotateY(180deg); }
+        #memory-game-board .card .front img { width: 85%; height: 85%; object-fit: cover; border-radius: 6px; border: 1px solid #6a05ad; }
+        #memory-game-board .card .back { background: #3f005a; color: #e0e0e0; font-size: 1.8em; font-weight: bold; border: 1px dashed rgba(255, 255, 255, 0.2); }
+
+        #memory-reset-button {
+            background-color: #6a05ad;
+            color: #e0e0e0;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 1em;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.6);
+        }
+
+        #memory-reset-button:hover { background-color: #5b049d; transform: translateY(-1px); }
+        #memory-game-message { margin-top: 15px; font-size: 1.2em; font-weight: bold; color: #00bcd4; text-align: center; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6); }
+
+        /* --- VIRE UM EINSTEIN (MATH GAME) STYLES --- */
+        #einstein-game-modal .game-container {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: rgba(44, 62, 80, 0.7);
+            padding: 20px; /* Adjusted padding */
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+            text-align: center;
+            width: 100%;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(52, 73, 94, 0.5);
+            color: #ecf0f1;
+            
+            /* --- ALTERAÇÃO APLICADA --- */
+            overflow-y: auto; /* Permite rolar para baixo */
+            max-height: 80vh; /* Define uma altura máxima (80% da altura da tela) */
+        }
+         #einstein-game-modal h1 {
+            color: #e67e22;
+            margin-bottom: 20px;
+            font-size: 2.2em; /* Adjusted font size */
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+        }
+         #einstein-game-modal #problem {
+            font-size: 2.5em; /* Adjusted font size */
+            margin-bottom: 25px;
+            color: #f1c40f;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.6);
+            animation: pulse 1.5s infinite alternate;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.05); }
+        }
+        #einstein-game-modal #answer-input, #einstein-game-modal #bet-input {
+            width: calc(100% - 30px);
+            padding: 12px; /* Adjusted padding */
+            margin-bottom: 15px;
+            border: 2px solid #5a7791;
+            border-radius: 8px;
+            font-size: 1.2em; /* Adjusted font size */
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #ecf0f1;
+            transition: border-color 0.3s ease, background-color 0.3s ease;
+        }
+        #einstein-game-modal #answer-input::placeholder, #einstein-game-modal #bet-input::placeholder {
+            color: #bdc3c7;
+        }
+        #einstein-game-modal #answer-input:focus, #einstein-game-modal #bet-input:focus {
+            outline: none;
+            border-color: #3498db;
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+        #einstein-game-modal .input-group {
+            margin-bottom: 15px;
+        }
+        #einstein-game-modal .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1em;
+            color: #bdc3c7;
+        }
+        #einstein-game-modal .action-button {
+            background-color: #27ae60;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            margin-bottom: 15px;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        #einstein-game-modal .action-button:hover {
+            background-color: #229a54;
+            transform: translateY(-2px);
+        }
+        #einstein-game-modal .start-button {
+            background-color: #3498db;
+            color: white;
+            padding: 15px 35px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+        }
+       #einstein-game-modal .start-button:hover {
+            background-color: #2980b9;
+        }
+        #einstein-game-modal .info-display {
+            font-size: 1.3em; /* Adjusted font size */
+            margin-top: 15px;
+            color: #ecf0f1;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+        }
+        #einstein-game-modal .message {
+            margin-top: 15px;
+            font-size: 1.1em;
+            font-weight: bold;
+            min-height: 25px; /* Reserve space */
+        }
+        #einstein-game-modal .correct { color: #2ecc71; }
+        #einstein-game-modal .incorrect { color: #e74c3c; }
+        
+        #einstein-game-modal .level-selection {
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+        #einstein-game-modal .level-selection button {
+            background-color: #f39c12;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        #einstein-game-modal .level-selection button:hover {
+            background-color: #e08e0b;
+        }
+        #einstein-game-modal .level-selection button.selected {
+            background-color: #2980b9;
+            border: 2px solid #3498db;
+        }
+
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+    <div id="intro-screen" class="intro-screen">
+        <h1>Bem-vindo ao Jogo!</h1>
+        <p>Prepare-se para minerar EINSTEINPOINT e explorar as profundezas!</p>
+        <button id="start-game-button">Começar Jogo</button>
+    </div>
+
+    <div id="game-message"></div>
+
+    <div class="game-container">
+        <header class="header">
+            <button class="header-button" id="profile-button" data-modal-target="profile-modal"><i class="fas fa-user"></i></button>
+            <div class="center-header-content">
+                <div class="level-and-tph-row">
+                    <div class="level-area" data-modal-target="level-progress-modal">
+                        <div class="level-text-display"><span>Nível <span id="player-level">1</span></span></div>
+                        <div class="level-bar-container"><div id="level-bar"></div></div>
+                    </div>
+                    <div class="tph-display"><span>Renda/h: <span id="tph-value">0</span></span></div>
+                </div>
+                <div class="score-display">
+                    <div class="einstein-info-row">
+                        <span class="score-label">EINSTEINPOINT</span>
+                        <div class="ticket-wrapper">
+                            <button id="ticket-button" class="ticket-button"></button>
+                            <div id="ticket-owned-label" class="ticket-owned-label">Possuído</div>
+                        </div>
+                    </div>
+                    <span class="score-value" id="einstein-points">0</span>
+                </div>
+            </div>
+            <button class="header-button" id="hamburger-button"><i class="fas fa-bars"></i></button>
+        </header>
+
+        <main class="main-tapper" id="tapper-area">
+            <div class="side-buttons-group left-group">
+                <div class="side-button" data-modal-target="nft-store-modal"><img src="https://via.placeholder.com/40/FF0000?text=NFT" alt="NFT Store"></div>
+                <div class="side-button" data-modal-target="minas-modal"><img src="https://via.placeholder.com/40/00FF00?text=M" alt="Minas"></div>
+                <div class="side-button" data-modal-target="aba3-modal"><img src="https://via.placeholder.com/40/0000FF?text=3" alt="Icone 3"></div>
+            </div>
+            <button id="tapper-button"><img src="miner.jpg" alt="Miner"></button>
+            <div class="side-buttons-group right-group">
+                <div class="side-button" data-modal-target="memory-game-modal"><img src="https://via.placeholder.com/40/FFFF00?text=NFT" alt="Memory Game"></div>
+                <div class="side-button" data-modal-target="einstein-game-modal"><img src="https://via.placeholder.com/40/E67E22?text=E" alt="Vire um Einstein"></div>
+                <div class="side-button" data-modal-target="right3-modal"><img src="https://via.placeholder.com/40/FF00FF?text=R3" alt="Right 3"></div>
+            </div>
+        </main>
+
+        <footer class="stats">
+            <div class="energy-bar-container">
+                <div id="energy-bar"></div>
+                <div class="energy-text" id="energy-text"></div>
+            </div>
+        </footer>
+    </div>
+
+    <div class="bottom-navbar">
+        <button class="nav-button" id="nav-home" data-modal-target="home-modal"><span class="icon"><i class="fas fa-home"></i></span><span class="label">Home</span></button>
+        <button class="nav-button" id="nav-improve" data-modal-target="improve-modal"><span class="icon"><i class="fas fa-arrow-up"></i></span><span class="label">Improve</span></button>
+        <button class="nav-button" id="nav-rewards" data-modal-target="rewards-modal"><span class="icon"><i class="fas fa-gift"></i></span><span class="label">Rewards</span></button>
+        <button class="nav-button" id="nav-tasks" data-modal-target="tasks-modal"><span class="icon"><i class="fas fa-tasks"></i></span><span class="label">Tasks</span></button>
+        <button class="nav-button" id="nav-friends" data-modal-target="friends-modal"><span class="icon"><i class="fas fa-users"></i></span><span class="label">Friends</span></button>
+        <button class="nav-button" id="nav-wallet" data-modal-target="wallet-modal"><span class="icon"><i class="fas fa-wallet"></i></span><span class="label">Carteira</span></button>
+    </div>
+
+    <button id="floating-button" class="floating-button hidden"></button>
+
+
+    <div id="profile-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-button">&times;</button>
+            <h2>Perfil do Jogador</h2>
+            <p><strong>Nome:</strong> Jogador 1</p>
+            <p><strong>Nível:</strong> <span id="profile-player-level">1</span></p>
+            <p><strong>Nome do Nível:</strong> <span id="profile-level-name">Estudante Curioso</span></p>
+            <p><strong>EINSTEINPOINT:</strong> <span id="profile-einstein-points">0</span></p>
+            <p>Aqui você pode ver suas estatísticas e informações pessoais.</p>
+        </div>
+    </div>
+    
+    <div id="side-menu-overlay" class="side-menu-overlay"></div>
+    <div id="side-menu" class="side-menu">
+        <button class="side-menu-close-button">&times;</button>
+        <h2>Menu</h2>
+        <ul>
+            <li><a href="whitepipereinstein.pdf" id="whitepaper-link" target="_blank">Whitepaper</a></li>
+            <li><a href="#" id="roadmap-link">Roadmap</a></li>
+            <li><a href="#" id="settings-link">Configurações</a></li>
+            <li><a href="#" id="help-link">Ajuda</a></li>
+        </ul>
+    </div>
+
+    <div id="home-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-button">&times;</button>
+            <h2>Bem-vindo de Volta!</h2>
+            <p>Esta é a tela inicial do seu jogo. Continue minerando EINSTEINPOINT!</p>
+            <p>Sua energia atual: <span id="home-energy-text">⚡ 0 / 0</span></p>
+        </div>
+    </div>
+
+    <div id="improve-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-button">&times;</button>
+            <div id="upgrade" class="aba" style="width:100%">
+                <h2>Cartões de Melhoria</h2>
+                <div class="improve-category-buttons">
+                    <button onclick="showCardCategory('base')" id="btnBase" class="active-category">Base</button>
+                    <button onclick="showCardCategory('energia')" id="btnEnergia">Energia</button>
+                    <button onclick="showCardCategory('velocidade')" id="btnVelocidade">Velocidade</button>
+                    <button onclick="showCardCategory('eficiencia')" id="btnEficiencia">Eficiência</button>
+                    <button onclick="showCardCategory('gravidade')" id="btnGravidade">Gravidade</button>
+                    <button onclick="showCardCategory('inercia')" id="btnInercia">Inércia</button>
+                    <button onclick="showCardCategory('newton')" id="btnNewton">Lei de Newton</button>
+                </div>
+                <div id="base" class="card-section active-section"></div>
+                <div id="energia" class="card-section"></div>
+                <div id="velocidade" class="card-section"></div>
+                <div id="eficiencia" class="card-section"></div>
+                <div id="gravidade" class="card-section"></div>
+                <div id="inercia" class="card-section"></div>
+                <div id="newton" class="card-section"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="rewards-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-button">&times;</button>
+            <h2>Roleta de Prêmios</h2>
+            <div class="roulette-container">
+                <div class="roulette-pointer"></div>
+                <ul id="roulette-wheel"></ul>
+            </div>
+            <button id="spin-button" disabled>Girar (0)</button>
+        </div>
+    </div>
+
+    <div id="tasks-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-button">&times;</button>
+            <h2>Suas Tarefas</h2>
+            <div id="tasks-content"></div>
+        </div>
+    </div>
+
+    <div id="friends-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-button">&times;</button>
+            <h2>Amigos e Recompensas</h2>
+            <p>Convide amigos para ganhar EINSTEINPOINT!</p>
+            <div class="friends-header">
+                <h3>Você convidou: <span id="friend-count">0</span> amigos</h3>
+                <button id="invite-friend-button">Convidar Amigo</button>
+            </div>
+            <div id="friend-rewards-list" class="rewards-list"></div>
+        </div>
+    </div>
+
+    <div id="nft-store-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-button">&times;</button>
+            <h2>Loja de NFTs</h2>
+            <div class="nft-section" id="section1">
+                <h3>NFTs Comuns</h3>
+                <div class="nft-item">
+                    <img src="nft1.jpg" alt="NFT 1">
+                    <p><strong>NFT Comum 1</strong></p>
+                    <p>Preço: 2 TON</p>
+                    <button data-nft-name="Comum 1" data-nft-price="2" data-nft-currency="TON">Comprar com TON</button>
+                </div>
+                <div class="nft-item">
+                    <img src="nft2.jpg" alt="NFT 2">
+                    <p><strong>NFT Comum 2</strong></p>
+                    <p>Preço: 2.5 TON</p>
+                    <button data-nft-name="Comum 2" data-nft-price="2.5" data-nft-currency="TON">Comprar com TON</button>
+                </div>
+            </div>
+            <div class="nft-section" id="section2">
+                <h3>NFTs Raros</h3>
+                <div class="nft-item">
+                    <img src="nft3.jpg" alt="NFT 3">
+                    <p><strong>NFT Raro 1</strong></p>
+                    <p>Preço: 4 TON</p>
+                    <button data-nft-name="Raro 1" data-nft-price="4" data-nft-currency="TON">Comprar com TON</button>
+                </div>
+            </div>
+            <div class="nft-section" id="section3">
+                <h3>NFTs Épicos</h3>
+                <div class="nft-item">
+                    <img src="nft4.jpg" alt="NFT 4">
+                    <p><strong>NFT Épico 1</strong></p>
+                    <p>Preço: 6 TON</p>
+                    <button data-nft-name="Épico 1" data-nft-price="6" data-nft-currency="TON">Comprar com TON</button>
+                </div>
+            </div>
+            <div class="nft-section" id="section4">
+                <h3>NFTs Lendários</h3>
+                <div class="nft-item">
+                    <img src="nft5.jpg" alt="NFT 5">
+                    <p><strong>NFT Lendário 1</strong></p>
+                    <p>Preço: 10 TON</p>
+                    <button data-nft-name="Lendário 1" data-nft-price="10" data-nft-currency="TON">Comprar com TON</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="minas-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-button">&times;</button>
+            <h2>Campo Minado</h2>
+            <p>Você tem <strong id="minas-plays-left">0</strong> rodadas restantes.</p>
+            <p>Escolha sua aposta e a dificuldade. Quanto mais bombas, maior o multiplicador de ganhos!</p>
+            
+            <div id="minas-config">
+                <div>
+                    <label for="minasApostaInput">Sua Aposta (EP):</label>
+                    <input type="number" id="minasApostaInput" value="500" min="1" step="100">
+                </div>
+                <div>
+                    <label for="minasDificuldadeSelect">Dificuldade:</label>
+                    <select id="minasDificuldadeSelect"></select>
+                </div>
+            </div>
+
+            <div id="minas-info">
+                <p>Multiplicador: <strong id="minasMultiplicador">1.0x</strong></p>
+                <p>Ganhos: <strong id="minasGanhos">0</strong> EP</p>
+            </div>
+
+            <div id="minasControles">
+                <div class="control-group">
+                    <button id="btnIniciarMinas">Iniciar Jogo</button>
+                    <button id="btnColetarMinas" disabled>Coletar Ganhos</button>
+                </div>
+                <div id="minas-purchase-container">
+                     <button id="btnComprarRodadasMinas">Comprar 50 Rodadas ($0.50)</button>
+                </div>
+            </div>
+
+            <div id="minas-grid"></div>
+            <p id="minasStatus" style="text-align: center;"></p>
+        </div>
+    </div>
+
+    <div id="aba3-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-button">&times;</button>
+            <h2>Aba 3 Content</h2>
+            <p>Este é o conteúdo da Aba 3.</p>
+        </div>
+    </div>
+
+    <div id="memory-game-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-button">&times;</button>
+            <div id="memoryGame">
+                <h1>Encontre as NFTs Iguais</h1>
+                <div class="game-container">
+                    <div class="status">
+                        <span>Pares: <span id="memory-matched-pairs">0</span> / <span id="memory-total-pairs">0</span></span>
+                        <span class="timer">Tempo: <span id="memory-time-left">40</span>s</span>
+                        <span>Rodadas: <span id="memory-plays-left">0</span></span>
+                    </div>
+                    <div id="memory-game-board"></div>
+                    <button id="memory-reset-button">Iniciar Jogo</button>
+                    <div class="message" id="memory-game-message"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="einstein-game-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-button">&times;</button>
+            <div class="game-container">
+                <h1>Vire um Einstein!</h1>
+                <p>Você tem <strong id="math-plays-left">10</strong> rodadas grátis diárias.</p>
+    
+                <div id="math-level-select-screen">
+                    <p>Selecione um nível de dificuldade:</p>
+                    <div class="level-selection">
+                        <button data-level="basico">BÁSICO</button>
+                        <button data-level="intermediario">INTERMEDIÁRIO</button>
+                        <button data-level="dificil">DIFÍCIL</button>
+                        <button data-level="einstein">EINSTEIN</button>
+                    </div>
+                    <button id="math-start-btn" class="action-button start-button">Começar o Desafio</button>
+                </div>
+    
+                <div id="math-game-area" style="display: none;">
+                    <p id="problem">Preparando o problema...</p>
+                    <div class="input-group">
+                        <label for="bet-input">Quanto quer apostar? (Se errar, você perde!)</label>
+                        <input type="text" inputmode="numeric" id="bet-input" placeholder="Sua aposta em EINSTEINPOINT">
+                    </div>
+                    <div class="input-group">
+                        <label for="answer-input">Sua Resposta:</label>
+                        <input type="text" inputmode="numeric" id="answer-input" placeholder="Digite aqui" autocomplete="off">
+                    </div>
+                    
+                    <button id="math-submit-btn" class="action-button">Apostar e Verificar</button>
+                    <button id="math-next-btn" class="action-button" style="display: none; background-color: #3498db;">Continuar</button>
+    
+                    <p id="math-timer" class="info-display">Tempo restante: 60s</p>
+                    <p id="math-message" class="message"></p>
+                </div>
+    
+                <div id="math-game-over-screen" style="display: none;">
+                    <h2>Desafio Concluído!</h2>
+                    <p id="math-final-message">O tempo acabou!</p>
+                    <button id="math-restart-btn" class="action-button">Jogar Novamente</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="right3-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-button">&times;</button>
+            <h2>Botão Lateral Direito 3</h2>
+            <p>Este é um modal de exemplo para o botão lateral direito 3.</p>
+        </div>
+    </div>
+
+    <div id="level-progress-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-button">&times;</button>
+            <h2>Progresso de Nível</h2>
+            <p>Seu nível atual: <strong><span id="current-level-modal">1</span> - <span id="current-level-name-modal">Estudante Curioso</span></strong></p>
+            <p>EINSTEINPOINT para o próximo nível: <strong id="exp-to-next-level-modal">50K</strong></p>
+            <div class="level-bar-container" style="width: 100%; max-width: 250px;"><div id="level-bar-modal"></div></div>
+            <p style="font-size: 0.9em; margin-top: 5px;">Você tem <span id="current-exp-modal">0</span> EINSTEINPOINT de EXP.</p>
+            <h3>Todos os Níveis:</h3>
+            <ul id="level-list"></ul>
+        </div>
+    </div>
+
+    <div id="wallet-modal" class="modal-overlay">
+        <div class="modal-content wallet">
+            <button class="modal-close-button"><i class="fas fa-times"></i></button>
+            <h2>Minha Carteira</h2>
+            <div class="wallet-container">
+                <div class="wallet-header">
+                    <p class="balance-label">Saldo Atual</p>
+                    <h3 class="total-balance" id="wallet-balance">0.00 EINSTEINPOINT</h3>
+                    <div class="wallet-address" onclick="copyWalletAddress()">
+                        <span id="display-wallet-address">Seu endereço de carteira...</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4C2.9 1 2 1.9 2 3v14h2V3h12V1zm3 4H8C6.9 5 6 5.9 6 7v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="action-btn" style="background-color: var(--primary-color); color: white;"><i class="fas fa-wallet"></i> Depositar</button>
+                        <button class="action-btn" style="background-color: var(--green); color: white;"><i class="fas fa-paper-plane"></i> Sacar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            score: 0,
+            baseEnergy: 1000,
+            energy: 1000,
+            maxEnergy: 1000,
+            baseCoinsPerTap: 1,
+            coinsPerTap: 1,
+            energyPerTap: 1,
+            energyRechargeRate: 2,
+            autoIncomePerSecond: 0,
+            playerLevel: 1,
+            currentExp: 0,
+            ticketPurchased: false,
+            ticketCost: 2.5,
+            minas: {
+                board: [],
+                gameActive: false,
+                currentWinnings: 0,
+                currentBet: 500,
+                availablePlays: 10,
+                lastResetDate: new Date().toLocaleDateString()
+            },
+            mathChallenge: {
+                availablePlays: 10,
+                lastResetDate: new Date().toLocaleDateString(),
+                gameActive: false,
+                currentProblem: {},
+                gameLevel: 'basico',
+                timerId: null,
+                timeLeft: 60
+            },
+            rouletteSpins: 1,
+            nftGameSpins: 5, 
+            isRouletteSpinning: false,
+            friendsInvited: 0,
+            claimedFriendRewards: [],
+            upgradeCards: [],
+            dailyAdsWatched: 0,
+            unlimitedAdsPurchased: false,
+            socialsFollowed: [],
+            hasNft: false,
+            ownedNfts: [],
+            unlimitedAdsBonusLastActivation: null,
+        };
+
+        // DATA DEFINITIONS
+        const friendRewards = [ { id: 1, friendsNeeded: 1, reward: 1000 }, { id: 2, friendsNeeded: 3, reward: 3000 }, { id: 3, friendsNeeded: 5, reward: 6000 }, { id: 4, friendsNeeded: 20, reward: 25000 }, { id: 5, friendsNeeded: 50, reward: 60000 }, { id: 6, friendsNeeded: 100, reward: 150000 }, { id: 7, friendsNeeded: 250, reward: 400000 }, { id: 8, friendsNeeded: 500, reward: 1000000 }, { id: 9, friendsNeeded: 1000, reward: 2500000, locked: true }, ];
+        function initializeUpgradeCards() { gameState.upgradeCards = [ { id: 'base1', category: 'base', name: 'Motor de Fusão Fria', description: 'Gera renda passiva constante.', effectType: 'tph', level: 1, currentCost: 220, currentBonus: 15, imageUrl: 'Base1.jpg' }, { id: 'base2', category: 'base', name: 'Coletor de Antimatéria', description: 'Converte matéria em renda contínua.', effectType: 'tph', level: 1, currentCost: 280, currentBonus: 25, imageUrl: 'https://via.placeholder.com/70/5F9EA0/FFFFFF?text=Base2' }, { id: 'base3', category: 'base', name: 'Sincronizador Quântico', description: 'Harmoniza partículas para gerar pontos.', effectType: 'tph', level: 1, currentCost: 300, currentBonus: 35, imageUrl: 'https://via.placeholder.com/70/DC143C/FFFFFF?text=Base3' }, { id: 'base4', category: 'base', name: 'Gerador de Partículas', description: 'Cria partículas que se convertem em renda.', effectType: 'tph', level: 1, currentCost: 250, currentBonus: 20, imageUrl: 'https://via.placeholder.com/70/2E8B57/FFFFFF?text=Base4' }, { id: 'base5', category: 'base', name: 'Reator de Ponto Zero', description: 'Extrai energia do vácuo quântico.', effectType: 'tph', level: 1, currentCost: 500, currentBonus: 50, imageUrl: 'https://via.placeholder.com/70/8A2BE2/FFFFFF?text=Base5' }, { id: 'base6', category: 'base', name: 'Analisador de Matéria Escura', description: 'Converte matéria escura em pontos.', effectType: 'tph', level: 1, currentCost: 1000, currentBonus: 80, imageUrl: 'https://via.placeholder.com/70/5F9EA0/FFFFFF?text=Base6' }, { id: 'base7', category: 'base', name: 'Estabilizador de Singularidade', description: 'Gera renda a partir de um buraco negro.', effectType: 'tph', level: 1, currentCost: 2500, currentBonus: 150, imageUrl: 'https://via.placeholder.com/70/DC143C/FFFFFF?text=Base7' }, { id: 'base8', category: 'base', name: 'Forja Estelar', description: 'Cria elementos pesados e valiosos.', effectType: 'tph', level: 1, currentCost: 6000, currentBonus: 300, imageUrl: 'https://via.placeholder.com/70/2E8B57/FFFFFF?text=Base8' }, { id: 'base9', category: 'base', name: 'Harmonizador Universal', description: 'Alinha as cordas cósmicas para lucro.', effectType: 'tph', level: 1, currentCost: 15000, currentBonus: 600, imageUrl: 'https://via.placeholder.com/70/8A2BE2/FFFFFF?text=Base9' }, { id: 'base10', category: 'base', name: 'Motor da Realidade', description: 'Altera a realidade para gerar EINSTEINPOINT.', effectType: 'tph', level: 1, currentCost: 40000, currentBonus: 1200, imageUrl: 'https://via.placeholder.com/70/5F9EA0/FFFFFF?text=Base10' }, { id: 'energy1', category: 'energia', name: 'Bateria de Íons', description: 'Aumenta sua capacidade máxima de energia. Pode ser melhorada com pontos até o Nível 30.', effectType: 'maxEnergy', level: 1, maxLevel: 30, currentCost: 1000, currentBonus: 500, imageUrl: 'https://via.placeholder.com/70/FFD700/000000?text=E1' }, { id: 'energy2', category: 'energia', name: 'Célula de Energia Extra', description: 'Adiciona um compartimento extra de energia. Desbloqueie e melhore até o Nível 50.', effectType: 'maxEnergy', level: 1, maxLevel: 50, currentCost: 1800, currentBonus: 1000, unlocked: false, unlockCost: 2.00, imageUrl: 'https://via.placeholder.com/70/FF8C00/FFFFFF?text=E2' }, { id: 'energy3', category: 'energia', name: 'Coração de uma Estrela', description: 'Capacidade de energia virtualmente infinita. Desbloqueie e melhore até o Nível 70.', effectType: 'maxEnergy', level: 1, maxLevel: 70, currentCost: 800000, currentBonus: 350000, unlocked: false, unlockCost: 3.50, imageUrl: 'https://via.placeholder.com/70/FF4500/FFFFFF?text=E3' }, { id: 'speed1', category: 'velocidade', name: 'Dedo Biônico', description: 'Reforça seu dedo para cliques mais fortes. Melhore com pontos até +10 por clique.', effectType: 'tapPower', level: 1, maxLevel: 10, currentCost: 2500, currentBonus: 1, imageUrl: 'https://via.placeholder.com/70/4169E1/FFFFFF?text=V2' }, { id: 'speed2', category: 'velocidade', name: 'Toque Quântico', description: 'Compra única. Um único toque em múltiplos lugares. Adiciona +30 de bônus ao seu poder de clique.', effectType: 'tapPower', bonus: 30, realCost: 2.50, owned: false, imageUrl: 'https://via.placeholder.com/70/4169E1/FFFFFF?text=V8' }, { id: 'speed3', category: 'velocidade', name: 'O Dedo de Deus', description: 'Compra única. Um toque que ecoa pela existência. Adiciona +50 de bônus ao seu poder de clique.', effectType: 'tapPower', bonus: 50, realCost: 5.00, owned: false, imageUrl: 'https://via.placeholder.com/70/1E90FF/FFFFFF?text=V10' }, { id: 'eff1', category: 'eficiencia', name: 'Calculadora Quântica', description: 'Otimiza seus ganhos passivos.', effectType: 'tph', level: 1, currentCost: 5000, currentBonus: 100, imageUrl: 'https://via.placeholder.com/70/32CD32/FFFFFF?text=Ef1' }, { id: 'eff2', category: 'eficiencia', name: 'Algoritmo Preditivo', description: 'Prevê os melhores investimentos de renda.', effectType: 'tph', level: 1, currentCost: 10000, currentBonus: 250, imageUrl: 'https://via.placeholder.com/70/008000/FFFFFF?text=Ef2' }, { id: 'eff3', category: 'eficiencia', name: 'Rede Neural de Ganhos', description: 'Aprende e otimiza sua renda.', effectType: 'tph', level: 1, currentCost: 22000, currentBonus: 500, imageUrl: 'https://via.placeholder.com/70/32CD32/FFFFFF?text=Ef3' }, { id: 'eff4', category: 'eficiencia', name: 'Otimizador de Higgs', description: 'Aumenta a "massa" dos seus pontos.', effectType: 'tph', level: 1, currentCost: 48000, currentBonus: 1000, imageUrl: 'https://via.placeholder.com/70/008000/FFFFFF?text=Ef4' }, { id: 'eff5', category: 'eficiencia', name: 'Processador de Bósons', description: 'Processa informações para gerar mais renda.', effectType: 'tph', level: 1, currentCost: 100000, currentBonus: 2000, imageUrl: 'https://via.placeholder.com/70/32CD32/FFFFFF?text=Ef5' }, { id: 'eff6', category: 'eficiencia', name: 'Simulador de Multiverso', description: 'Testa e aplica as melhores estratégias.', effectType: 'tph', level: 1, currentCost: 220000, currentBonus: 4000, imageUrl: 'https://via.placeholder.com/70/008000/FFFFFF?text=Ef6' }, { id: 'eff7', category: 'eficiencia', name: 'Sincronizador de Linhas Temporais', description: 'Coleta renda de futuros possíveis.', effectType: 'tph', level: 1, currentCost: 480000, currentBonus: 8000, imageUrl: 'https://via.placeholder.com/70/32CD32/FFFFFF?text=Ef7' }, { id: 'eff8', category: 'eficiencia', name: 'Decodificador Cósmico', description: 'Traduz o ruído cósmico em renda.', effectType: 'tph', level: 1, currentCost: 1000000, currentBonus: 16000, imageUrl: 'https://via.placeholder.com/70/008000/FFFFFF?text=Ef8' }, { id: 'eff9', category: 'eficiencia', name: 'Consciência Coletiva', description: 'Une mentes para otimização máxima.', effectType: 'tph', level: 1, currentCost: 2500000, currentBonus: 35000, imageUrl: 'https://via.placeholder.com/70/32CD32/FFFFFF?text=Ef9' }, { id: 'eff10', category: 'eficiencia', name: 'O Oráculo de Silício', description: 'Sabe exatamente como maximizar lucros.', effectType: 'tph', level: 1, currentCost: 6000000, currentBonus: 80000, imageUrl: 'https://via.placeholder.com/70/008000/FFFFFF?text=Ef10' }, { id: 'grav1', category: 'gravidade', name: 'Poço Gravitacional', description: 'Atrai pontos passivamente do cosmos.', effectType: 'tph', level: 1, currentCost: 7500, currentBonus: 150, imageUrl: 'https://via.placeholder.com/70/4B0082/FFFFFF?text=G1' }, { id: 'grav2', category: 'gravidade', name: 'Lente Gravitacional', description: 'Focaliza a energia cósmica em renda.', effectType: 'tph', level: 1, currentCost: 15000, currentBonus: 400, imageUrl: 'https://via.placeholder.com/70/800080/FFFFFF?text=G2' }, { id: 'grav3', category: 'gravidade', name: 'Manipulador de Grávitons', description: 'Controla a gravidade para atrair pontos.', effectType: 'tph', level: 1, currentCost: 33000, currentBonus: 800, imageUrl: 'https://via.placeholder.com/70/4B0082/FFFFFF?text=G3' }, { id: 'grav4', category: 'gravidade', name: 'Gerador de Ondas Gravitacionais', description: 'Cria ondulações que coletam renda.', effectType: 'tph', level: 1, currentCost: 72000, currentBonus: 1600, imageUrl: 'https://via.placeholder.com/70/800080/FFFFFF?text=G4' }, { id: 'grav5', category: 'gravidade', name: 'Ancoragem Espaço-Temporal', description: 'Fixa um ponto de alta renda no espaço.', effectType: 'tph', level: 1, currentCost: 160000, currentBonus: 3200, imageUrl: 'https://via.placeholder.com/70/4B0082/FFFFFF?text=G5' }, { id: 'grav6', category: 'gravidade', name: 'Controle de Geodésicas', description: 'Dobra o espaço-tempo para seus ganhos.', effectType: 'tph', level: 1, currentCost: 350000, currentBonus: 6500, imageUrl: 'https://via.placeholder.com/70/800080/FFFFFF?text=G6' }, { id: 'grav7', category: 'gravidade', name: 'Reator de Singularidade Nua', description: 'Extrai renda de uma singularidade exposta.', effectType: 'tph', level: 1, currentCost: 750000, currentBonus: 13000, imageUrl: 'https://via.placeholder.com/70/4B0082/FFFFFF?text=G7' }, { id: 'grav8', category: 'gravidade', name: 'Distorção de Métrica', description: 'Altera as leis da física para lucro.', effectType: 'tph', level: 1, currentCost: 1600000, currentBonus: 26000, imageUrl: 'https://via.placeholder.com/70/800080/FFFFFF?text=G8' }, { id: 'grav9', category: 'gravidade', name: 'Pulsar Controlado', description: 'Usa a rotação de um pulsar para gerar renda.', effectType: 'tph', level: 1, currentCost: 3800000, currentBonus: 55000, imageUrl: 'https://via.placeholder.com/70/4B0082/FFFFFF?text=G9' }, { id: 'grav10', category: 'gravidade', name: 'O Grande Atrator', description: 'Toda a matéria do universo paga tributo.', effectType: 'tph', level: 1, currentCost: 9000000, currentBonus: 120000, imageUrl: 'https://via.placeholder.com/70/800080/FFFFFF?text=G10' }, { id: 'iner1', category: 'inercia', name: 'Movimento Perpétuo', description: 'Uma máquina que gera renda sem parar.', effectType: 'tph', level: 1, currentCost: 6000, currentBonus: 120, imageUrl: 'https://via.placeholder.com/70/A52A2A/FFFFFF?text=I1' }, { id: 'iner2', category: 'inercia', name: 'Volante Inercial', description: 'Armazena e libera renda com o tempo.', effectType: 'tph', level: 1, currentCost: 12000, currentBonus: 300, imageUrl: 'https://via.placeholder.com/70/D2691E/FFFFFF?text=I2' }, { id: 'iner3', category: 'inercia', name: 'Campo de Estase', description: 'Gera renda a partir da inércia congelada.', effectType: 'tph', level: 1, currentCost: 26000, currentBonus: 600, imageUrl: 'https://via.placeholder.com/70/A52A2A/FFFFFF?text=I3' }, { id: 'iner4', category: 'inercia', name: 'Anulador de Fricção', description: 'Permite que a renda flua sem resistência.', effectType: 'tph', level: 1, currentCost: 57000, currentBonus: 1200, imageUrl: 'https://via.placeholder.com/70/D2691E/FFFFFF?text=I4' }, { id: 'iner5', category: 'inercia', name: 'Massa Negativa', description: 'Repele custos e atrai lucros.', effectType: 'tph', level: 1, currentCost: 125000, currentBonus: 2500, imageUrl: 'https://via.placeholder.com/70/A52A2A/FFFFFF?text=I5' }, { id: 'iner6', category: 'inercia', name: 'Efeito Lense-Thirring', description: 'Arrasta o espaço-tempo para gerar renda.', effectType: 'tph', level: 1, currentCost: 275000, currentBonus: 5000, imageUrl: 'https://via.placeholder.com/70/D2691E/FFFFFF?text=I6' }, { id: 'iner7', category: 'inercia', name: 'Gerador de Inércia Infinita', description: 'Um objeto que nunca para de render.', effectType: 'tph', level: 1, currentCost: 600000, currentBonus: 10000, imageUrl: 'https://via.placeholder.com/70/A52A2A/FFFFFF?text=I7' }, { id: 'iner8', category: 'inercia', name: 'Motor de Mach', description: 'Acelera o universo relativo a você.', effectType: 'tph', level: 1, currentCost: 1300000, currentBonus: 20000, imageUrl: 'https://via.placeholder.com/70/D2691E/FFFFFF?text=I8' }, { id: 'iner9', category: 'inercia', name: 'Referencial Absoluto', description: 'Define seu próprio referencial de lucro.', effectType: 'tph', level: 1, currentCost: 3000000, currentBonus: 45000, imageUrl: 'https://via.placeholder.com/70/A52A2A/FFFFFF?text=I9' }, { id: 'iner10', category: 'inercia', name: 'O Imóvel Comovedor', description: 'O universo se move, você lucra.', effectType: 'tph', level: 1, currentCost: 7000000, currentBonus: 100000, imageUrl: 'https://via.placeholder.com/70/D2691E/FFFFFF?text=I10' }, { id: 'newton1', category: 'newton', name: 'Ação e Reação', description: 'Toda ação de renda gera uma reação maior.', effectType: 'tph', level: 1, currentCost: 8000, currentBonus: 180, imageUrl: 'https://via.placeholder.com/70/696969/FFFFFF?text=N1' }, { id: 'newton2', category: 'newton', name: 'Maçã Dourada', description: 'Uma "descoberta" que aumenta seus ganhos.', effectType: 'tph', level: 1, currentCost: 18000, currentBonus: 450, imageUrl: 'https://via.placeholder.com/70/808080/FFFFFF?text=N2' }, { id: 'newton3', category: 'newton', name: 'Canhão Orbital', description: 'Lança projéteis de lucro pelo universo.', effectType: 'tph', level: 1, currentCost: 40000, currentBonus: 900, imageUrl: 'https://via.placeholder.com/70/696969/FFFFFF?text=N3' }, { id: 'newton4', category: 'newton', name: 'Prisma de EINSTEINPOINT', description: 'Decompõe a luz em espectros de lucro.', effectType: 'tph', level: 1, currentCost: 88000, currentBonus: 1800, imageUrl: 'https://via.placeholder.com/70/808080/FFFFFF?text=N4' }, { id: 'newton5', category: 'newton', name: 'Lei da Gravitação Universal de Lucro', description: 'Todos os pontos se atraem.', effectType: 'tph', level: 1, currentCost: 190000, currentBonus: 3600, imageUrl: 'https://via.placeholder.com/70/696969/FFFFFF?text=N5' }, { id: 'newton6', category: 'newton', name: 'Cálculo Infinitesimal de Ganhos', description: 'Calcula a derivada do seu lucro.', effectType: 'tph', level: 1, currentCost: 420000, currentBonus: 7200, imageUrl: 'https://via.placeholder.com/70/808080/FFFFFF?text=N6' }, { id: 'newton7', category: 'newton', name: 'Principia Mathematica Financeira', description: 'As leis fundamentais do lucro.', effectType: 'tph', level: 1, currentCost: 920000, currentBonus: 14000, imageUrl: 'https://via.placeholder.com/70/696969/FFFFFF?text=N7' }, { id: 'newton8', category: 'newton', name: 'O Éter Luminífero', description: 'Um meio que propaga seus lucros.', effectType: 'tph', level: 1, currentCost: 2000000, currentBonus: 28000, imageUrl: 'https://via.placeholder.com/70/808080/FFFFFF?text=N8' }, { id: 'newton9', category: 'newton', name: 'Alquimia Celestial', description: 'Transmuta matéria comum em EINSTEINPOINT.', effectType: 'tph', level: 1, currentCost: 4500000, currentBonus: 60000, imageUrl: 'https://via.placeholder.com/70/696969/FFFFFF?text=N9' }, { id: 'newton10', category: 'newton', name: 'O Ombro do Gigante', description: 'Veja mais longe, lucre mais alto.', effectType: 'tph', level: 1, currentCost: 10000000, currentBonus: 130000, imageUrl: 'https://via.placeholder.com/70/808080/FFFFFF?text=N10' }, ]; }
+        const levelData = [ { level: 1, name: "Estudante Curioso", points: 50000 }, { level: 2, name: "Iniciante em Física", points: 100000 }, { level: 3, name: "Pesquisador Júnior", points: 200000 }, { level: 4, name: "Assistente de Laboratório", points: 300000 }, { level: 5, name: "Geólogo Quântico", points: 400000 }, { level: 6, name: "Analista de Partículas", points: 1100000 }, { level: 7, name: "Mestre em Teoria", points: 3000000 }, { level: 8, name: "Engenheiro de Bóson de Higgs", points: 8200000 }, { level: 9, name: "Especialista em Relatividade", points: 22500000 }, { level: 10, name: "Explorador de Quasares", points: 61800000 }, { level: 11, name: "Caçador de Matéria Escura", points: 169000000 }, { level: 12, name: "Teórico das Cordas", points: 464000000 }, { level: 13, name: "Arquiteto de Buracos de Minhoca", points: 1200000000 }, { level: 14, name: "Mestre da Gravidade", points: 3500000000 }, { level: 15, name: "Manipulador de Singularidades", points: 96000000000 }, { level: 16, name: "Construtor de Estrelas", points: 260000000000 }, { level: 17, name: "Forjador de Nebulosas", points: 720000000000 }, { level: 18, name: "Designer de Galáxias", points: 1980000000000 }, { level: 19, name: "Regente do Superaglomerado", points: 5420000000000 }, { level: 20, name: "Arquiteto do Multiverso", points: 15000000000000 }, { level: 21, name: "Engenheiro da Realidade", points: 41000000000000 }, { level: 22, name: "Tecelão do Espaço-Tempo", points: 112000000000000 }, { level: 23, name: "Consciência Cósmica", points: 307000000000000 }, { level: 24, name: "Guardião das Leis Físicas", points: 840000000000000 }, { level: 25, name: "Entidade Interdimensional", points: 2300000000000000 }, { level: 26, name: "O Paradoxo Vivo", points: 6320000000000000 }, { level: 27, name: "Arauto do Big Bang", points: 17000000000000000 }, { level: 28, name: "Lorde do Ponto Ômega", points: 47000000000000000 }, { level: 29, name: "A Causa Primordial", points: 130000000000000000 }, { level: 30, name: "A Singularidade Final", points: 350000000000000000 }, { level: 31, name: "EINSTEIN", points: 1000000000000000000 } ];
+        
+        const MINAS_GRID_SIZE = 5;
+        // --- ALTERAÇÃO APLICADA ABAIXO (Redução dos multiplicadores) ---
+        const DIFICULDADES_MINAS = [
+            { nome: 'Fácil', bombas: 3, multiplicador: 1.1 },
+            { nome: 'Médio', bombas: 5, multiplicador: 1.25 },
+            { nome: 'Difícil', bombas: 8, multiplicador: 1.5 },
+            { nome: 'Insano', bombas: 12, multiplicador: 2.0 }
+        ];
+
+        // HTML ELEMENT REFERENCES
+        const introScreen = document.getElementById('intro-screen');
+        const startGameButton = document.getElementById('start-game-button');
+        const einsteinPointsEl = document.getElementById('einstein-points');
+        const tapperButton = document.getElementById('tapper-button');
+        const tapperArea = document.getElementById('tapper-area');
+        const energyBar = document.getElementById('energy-bar');
+        const energyText = document.getElementById('energy-text');
+        const playerLevelEl = document.getElementById('player-level');
+        const levelBar = document.getElementById('level-bar');
+        const tphValueEl = document.getElementById('tph-value');
+        const profileEinsteinPointsEl = document.getElementById('profile-einstein-points');
+        const profilePlayerLevelEl = document.getElementById('profile-player-level');
+        const profileLevelNameEl = document.getElementById('profile-level-name');
+        const homeEnergyTextEl = document.getElementById('home-energy-text');
+        const walletBalanceEl = document.getElementById('wallet-balance');
+        const displayWalletAddressEl = document.getElementById('display-wallet-address');
+        const ticketButton = document.getElementById('ticket-button');
+        const ticketOwnedLabel = document.getElementById('ticket-owned-label');
+        const floatingButton = document.getElementById('floating-button');
+        const gameMessageEl = document.getElementById('game-message');
+        const levelProgressModal = document.getElementById('level-progress-modal');
+        const currentLevelModalEl = document.getElementById('current-level-modal');
+        const currentLevelNameModalEl = document.getElementById('current-level-name-modal');
+        const expToNextLevelModalEl = document.getElementById('exp-to-next-level-modal');
+        const levelBarModal = document.getElementById('level-bar-modal');
+        const currentExpModalEl = document.getElementById('current-exp-modal');
+        const levelListEl = document.getElementById('level-list');
+        const rouletteWheel = document.getElementById('roulette-wheel');
+        const spinButton = document.getElementById('spin-button');
+        const friendCountEl = document.getElementById('friend-count');
+        const inviteFriendButton = document.getElementById('invite-friend-button');
+        const friendRewardsListEl = document.getElementById('friend-rewards-list');
+        const tasksContentEl = document.getElementById('tasks-content');
+        const hamburgerButton = document.getElementById('hamburger-button');
+        const sideMenu = document.getElementById('side-menu');
+        const sideMenuOverlay = document.getElementById('side-menu-overlay');
+        const sideMenuCloseButton = document.querySelector('.side-menu-close-button');
+        
+        // --- INÍCIO: ELEMENTOS CAMPO MINADO ---
+        const minasGrid = document.getElementById('minas-grid');
+        const btnIniciarMinas = document.getElementById('btnIniciarMinas');
+        const btnColetarMinas = document.getElementById('btnColetarMinas');
+        const btnComprarRodadasMinas = document.getElementById('btnComprarRodadasMinas');
+        const minasPlaysLeftEl = document.getElementById('minas-plays-left');
+        const minasPurchaseContainer = document.getElementById('minas-purchase-container');
+        const minasMultiplicadorEl = document.getElementById('minasMultiplicador');
+        const minasGanhosEl = document.getElementById('minasGanhos');
+        const minasStatusEl = document.getElementById('minasStatus');
+        const minasApostaInput = document.getElementById('minasApostaInput');
+        const minasDificuldadeSelect = document.getElementById('minasDificuldadeSelect');
+        // --- FIM: ELEMENTOS CAMPO MINADO ---
+
+        // Memory Game Elements
+        const memoryGameBoard = document.getElementById('memory-game-board');
+        const memoryMatchedPairsSpan = document.getElementById('memory-matched-pairs');
+        const memoryTotalPairsSpan = document.getElementById('memory-total-pairs');
+        const memoryResetButton = document.getElementById('memory-reset-button');
+        const memoryGameMessage = document.getElementById('memory-game-message');
+        const memoryTimeLeftSpan = document.getElementById('memory-time-left');
+        const memoryPlaysLeftSpan = document.getElementById('memory-plays-left');
+
+        // --- INÍCIO: ELEMENTOS JOGO MATEMÁTICA (EINSTEIN) ---
+        const mathModal = document.getElementById('einstein-game-modal');
+        const mathProblemElement = mathModal.querySelector('#problem');
+        const mathAnswerInput = mathModal.querySelector('#answer-input');
+        const mathBetInput = mathModal.querySelector('#bet-input');
+        const mathSubmitBtn = mathModal.querySelector('#math-submit-btn');
+        const mathNextBtn = mathModal.querySelector('#math-next-btn');
+        const mathStartBtn = mathModal.querySelector('#math-start-btn');
+        const mathTimerElement = mathModal.querySelector('#math-timer');
+        const mathMessageElement = mathModal.querySelector('#math-message');
+        const mathGameArea = mathModal.querySelector('#math-game-area');
+        const mathGameOverScreen = mathModal.querySelector('#math-game-over-screen');
+        const mathFinalMessage = mathModal.querySelector('#math-final-message');
+        const mathRestartBtn = mathModal.querySelector('#math-restart-btn');
+        const mathLevelSelectScreen = mathModal.querySelector('#math-level-select-screen');
+        const mathLevelButtons = mathModal.querySelectorAll('.level-selection button');
+        const mathPlaysLeftEl = mathModal.querySelector('#math-plays-left');
+        // --- FIM: ELEMENTOS JOGO MATEMÁTICA ---
+
+
+        // GAME SAVE/LOAD
+        function loadGame() {
+            const savedState = localStorage.getItem('dropeeGameState');
+            initializeUpgradeCards(); 
+            if (savedState) {
+                const loadedState = JSON.parse(savedState);
+                
+                const deepMerge = (target, source) => {
+                    for (const key in source) {
+                        if (source[key] instanceof Object && key in target && target[key] instanceof Object) {
+                            deepMerge(target[key], source[key]);
+                        } else {
+                            target[key] = source[key];
+                        }
+                    }
+                    return target;
+                };
+
+                deepMerge(gameState, loadedState);
+
+                if (loadedState.upgradeCards) {
+                    gameState.upgradeCards.forEach(templateCard => {
+                        const savedCard = loadedState.upgradeCards.find(c => c.id === templateCard.id);
+                        if (savedCard) { Object.assign(templateCard, savedCard); }
+                    });
+                }
+            }
+            checkMinasDailyReset();
+            checkMathChallengeDailyReset();
+            recalculateStatsFromCards(); 
+            setupRoulette(); 
+            updateUI();
+        }
+        function saveGame() { localStorage.setItem('dropeeGameState', JSON.stringify(gameState)); }
+        
+        // CORE LOGIC
+        function recalculateStatsFromCards() {
+            let newMaxEnergy = gameState.baseEnergy;
+            let newCoinsPerTap = gameState.baseCoinsPerTap;
+            let newAutoIncomePerSecond = 0;
+            gameState.upgradeCards.forEach(card => {
+                if (card.level > 1) {
+                    if (card.hasOwnProperty('unlocked') && !card.unlocked) { return; }
+                    let tempBonus = card.currentBonus;
+                    for(let i = card.level; i > 1; i--) { tempBonus /= 2; }
+                    let totalBonus = 0;
+                    for (let i = 1; i < card.level; i++) { totalBonus += tempBonus; tempBonus *=2; }
+                    switch (card.effectType) {
+                        case 'tph': newAutoIncomePerSecond += (totalBonus / 3600); break;
+                        case 'maxEnergy': newMaxEnergy += totalBonus; break;
+                        case 'tapPower': newCoinsPerTap += totalBonus; break;
+                    }
+                }
+                if (card.owned) {
+                     switch (card.effectType) { case 'tapPower': newCoinsPerTap += card.bonus; break; }
+                }
+            });
+            gameState.maxEnergy = newMaxEnergy;
+            gameState.coinsPerTap = newCoinsPerTap;
+            gameState.autoIncomePerSecond = newAutoIncomePerSecond;
+        }
+
+        function handleClick(event) {
+            if (gameState.energy >= gameState.energyPerTap) {
+                gameState.score += gameState.coinsPerTap;
+                gameState.energy -= gameState.energyPerTap;
+                gainExp(gameState.coinsPerTap);
+                showFloatingText(event.clientX, event.clientY);
+                updateScore();
+                updateEnergy();
+                tapperButton.style.transform = 'scale(0.95)';
+                setTimeout(() => { tapperButton.style.transform = 'scale(1)'; }, 100);
+            }
+        }
+
+        function rechargeEnergy() {
+            if (gameState.energy < gameState.maxEnergy) {
+                gameState.energy += gameState.energyRechargeRate;
+                if (gameState.energy > gameState.maxEnergy) { gameState.energy = gameState.maxEnergy; }
+                updateEnergy();
+            }
+        }
+
+        function applyAutoIncome() {
+            if (gameState.autoIncomePerSecond > 0) {
+                const incomePerTick = gameState.autoIncomePerSecond; 
+                gameState.score += incomePerTick;
+                gainExp(incomePerTick);
+                updateScore();
+            }
+        }
+
+        function gainExp(amount) {
+            gameState.currentExp += amount;
+            let nextLevelInfo = levelData.find(l => l.level === gameState.playerLevel + 1);
+            while (nextLevelInfo && gameState.currentExp >= nextLevelInfo.points) {
+                gameState.playerLevel++;
+                nextLevelInfo = levelData.find(l => l.level === gameState.playerLevel + 1);
+            }
+            updateLevelDisplay();
+        }
+
+        // UTILITY FUNCTIONS
+        function formatScore(num) {
+            if (num < 1000) return parseFloat(num.toPrecision(3));
+            const suffixes = ["", "K", "M", "B", "T", "Qa", "S", "Sp", "O", "N", "D"];
+            const i = Math.floor(Math.log10(num) / 3);
+            if (i >= suffixes.length) return num.toExponential(2);
+            const shortNum = (num / Math.pow(1000, i)).toFixed(2);
+            return shortNum + suffixes[i];
+        }
+
+        function showGameMessage(message, duration = 3000) {
+            if (gameMessageEl) {
+                gameMessageEl.textContent = message;
+                gameMessageEl.style.display = 'block';
+                setTimeout(() => { gameMessageEl.style.display = 'none'; }, duration);
+            }
+        }
+        
+        function copyWalletAddress(){
+            const address = "0xAbCd...EfGh1234";
+            navigator.clipboard.writeText(address).then(() => {
+                showGameMessage("Endereço da carteira copiado!");
+            }).catch(err => {
+                showGameMessage("Falha ao copiar o endereço.");
+            });
+        }
+
+        // UI UPDATE FUNCTIONS
+        function updateScore() {
+            const formattedScore = formatScore(gameState.score);
+            einsteinPointsEl.textContent = formattedScore;
+            profileEinsteinPointsEl.textContent = formattedScore;
+            if(walletBalanceEl) walletBalanceEl.textContent = `${formattedScore} EINSTEINPOINT`;
+        }
+
+        function updateEnergy() {
+            const percentage = (gameState.energy / gameState.maxEnergy) * 100;
+            energyBar.style.width = `${percentage}%`;
+            energyText.textContent = `⚡ ${Math.floor(gameState.energy)} / ${formatScore(gameState.maxEnergy)}`;
+            homeEnergyTextEl.textContent = `⚡ ${Math.floor(gameState.energy)} / ${formatScore(gameState.maxEnergy)}`;
+        }
+        
+        function updateLevelDisplay() {
+            playerLevelEl.textContent = gameState.playerLevel;
+            profilePlayerLevelEl.textContent = gameState.playerLevel;
+            const levelName = levelData.find(l => l.level === gameState.playerLevel)?.name || "Nível Máximo";
+            profileLevelNameEl.textContent = levelName;
+            const currentLevelInfo = levelData.find(l => l.level === gameState.playerLevel);
+            const nextLevelInfo = levelData.find(l => l.level === gameState.playerLevel + 1);
+            let levelPercentage = 0;
+            let expForNext = "MAX";
+            if (nextLevelInfo) {
+                const startPoints = currentLevelInfo ? currentLevelInfo.points : 0;
+                const endPoints = nextLevelInfo.points;
+                const totalExpForLevel = endPoints - startPoints;
+                const currentExpInLevel = gameState.currentExp - startPoints;
+                levelPercentage = Math.max(0, Math.min(100, (currentExpInLevel / totalExpForLevel) * 100));
+                expForNext = formatScore(endPoints - gameState.currentExp);
+            } else { levelPercentage = 100; }
+            levelBar.style.width = `${levelPercentage}%`;
+            currentLevelModalEl.textContent = gameState.playerLevel;
+            currentLevelNameModalEl.textContent = levelName;
+            expToNextLevelModalEl.textContent = expForNext;
+            levelBarModal.style.width = `${levelPercentage}%`;
+            currentExpModalEl.textContent = formatScore(gameState.currentExp);
+        }
+
+        function updateTPH() { const tph = gameState.autoIncomePerSecond * 3600; tphValueEl.textContent = formatScore(tph); }
+        function updateTicketAndFloatingButtonState() {
+            if (gameState.ticketPurchased) {
+                ticketButton.classList.add('owned');
+                ticketButton.disabled = true;
+                ticketOwnedLabel.style.display = 'block';
+                floatingButton.classList.remove('hidden');
+            } else {
+                ticketButton.classList.remove('owned');
+                ticketButton.disabled = gameState.score < gameState.ticketCost;
+                ticketOwnedLabel.style.display = 'none';
+                floatingButton.classList.add('hidden');
+            }
+        }
+        
+        function updateUI() {
+            updateScore(); updateEnergy(); updateLevelDisplay(); updateTPH();
+            updateTicketAndFloatingButtonState(); 
+            if (document.getElementById('improve-modal').classList.contains('active')) {
+                const activeCategoryEl = document.querySelector('.improve-category-buttons .active-category');
+                if (activeCategoryEl) { renderUpgradeCards(activeCategoryEl.id.replace('btn','').toLowerCase()); }
+            }
+            if (document.getElementById('friends-modal').classList.contains('active')) { renderFriendsModal(); }
+            if (document.getElementById('tasks-modal').classList.contains('active')) { renderTasksModal(); }
+            if (document.getElementById('memory-game-modal').classList.contains('active')) { updateMemoryGamePlaysDisplay(); }
+            if (document.getElementById('nft-store-modal').classList.contains('active')) { renderNftStore(); }
+            if (document.getElementById('minas-modal').classList.contains('active')) { updateMinasUI(); }
+            if (document.getElementById('einstein-game-modal').classList.contains('active')) { updateMathChallengeUI(); }
+            if (document.getElementById('rewards-modal').classList.contains('active')) { setupRoulette(); updateRouletteUI(); }
+        }
+
+        // MODAL & DYNAMIC CONTENT
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                if (modalId === 'level-progress-modal') populateLevelList();
+                if (modalId === 'improve-modal') {
+                    const activeCategory = document.querySelector('.improve-category-buttons .active-category');
+                    showCardCategory(activeCategory ? activeCategory.id.replace('btn', '').toLowerCase() : 'base');
+                }
+                if (modalId === 'minas-modal') setupMinasView();
+                if (modalId === 'einstein-game-modal') setupMathChallengeView();
+                if (modalId === 'rewards-modal') { setupRoulette(); updateRouletteUI(); }
+                if (modalId === 'friends-modal') { renderFriendsModal(); }
+                if (modalId === 'tasks-modal') { renderTasksModal(); }
+                if (modalId === 'memory-game-modal') {
+                    if(!memoryGameBoard.hasChildNodes()){ initializeMemoryGame(); }
+                    updateMemoryGamePlaysDisplay(); 
+                }
+                if (modalId === 'nft-store-modal') { renderNftStore(); }
+
+                modal.classList.add('active');
+            }
+        }
+
+        function closeModal(event) {
+            const modalOverlay = event.target.closest('.modal-overlay');
+            if (modalOverlay) { 
+                if(modalOverlay.id === 'einstein-game-modal' && gameState.mathChallenge.gameActive) {
+                    endMathChallenge(false);
+                }
+                 if(modalOverlay.id === 'memory-game-modal') {
+                    clearInterval(memoryGameTimerInterval);
+                }
+                modalOverlay.classList.remove('active');
+            }
+        }
+        
+        function toggleSideMenu() { sideMenu.classList.toggle('active'); sideMenuOverlay.classList.toggle('active'); }
+        function showFloatingText(x, y) {
+            const text = document.createElement('div');
+            text.textContent = `+${formatScore(gameState.coinsPerTap)}`;
+            text.className = 'floating-text';
+            const rect = tapperButton.getBoundingClientRect();
+            text.style.left = `${x - rect.left}px`;
+            text.style.top = `${y - rect.top}px`;
+            tapperArea.appendChild(text);
+            setTimeout(() => { text.remove(); }, 1000);
+        }
+
+        // UPGRADE CARDS & PURCHASE LOGIC
+        function showCardCategory(category) {
+            document.querySelectorAll('.card-section').forEach(section => section.classList.remove('active-section'));
+            document.querySelectorAll('.improve-category-buttons button').forEach(button => button.classList.remove('active-category'));
+            document.getElementById(category)?.classList.add('active-section');
+            document.getElementById(`btn${category.charAt(0).toUpperCase() + category.slice(1)}`)?.classList.add('active-category');
+            renderUpgradeCards(category);
+        }
+
+        function renderUpgradeCards(category) {
+            const container = document.getElementById(category);
+            if (!container) return;
+            container.innerHTML = '';
+            const cardsToRender = gameState.upgradeCards.filter(c => c.category === category);
+            cardsToRender.forEach(card => {
+                const cardEl = document.createElement('div');
+                cardEl.className = 'cartao';
+                let bonusText = '', levelText = '', buttonHTML = '';
+                let isButtonDisabled = false;
+                if (card.level) levelText = `<p class="level-info">Nível: ${card.level}${card.maxLevel ? ' / ' + card.maxLevel : ''}</p>`;
+                if (card.currentBonus) bonusText = `<p class="bonus-info">Próximo Bônus: +${formatScore(card.currentBonus)} ${card.effectType === 'tapPower' ? '/Clique' : card.effectType === 'maxEnergy' ? 'Energia' : 'Renda/h'}</p>`;
+                if(card.bonus && !card.owned) bonusText = `<p class="bonus-info">Bônus: +${formatScore(card.bonus)} ${card.effectType === 'tapPower' ? '/Clique' : ''}</p>`;
+
+                if (card.owned) { buttonHTML = `<span>Possuído</span>`; isButtonDisabled = true;
+                } else if (card.realCost) { buttonHTML = `<div class="cost-text"><span>$${card.realCost.toFixed(2)}</span></div>`;
+                } else if (card.hasOwnProperty('unlocked') && !card.unlocked) { buttonHTML = `<div class="cost-text"><span>Desbloquear ($${card.unlockCost.toFixed(2)})</span></div>`;
+                } else if (card.maxLevel && card.level >= card.maxLevel) { buttonHTML = `<span>Nível Máximo</span>`; levelText = `<p class="level-info">Nível: ${card.maxLevel} / ${card.maxLevel}</p>`; bonusText = ''; isButtonDisabled = true;
+                } else if (card.currentCost) { buttonHTML = `<div class="cost-text"><img src="https://i.ibb.co/q5L3hJc/Moeda-EINSTEINPOINT.png" alt="Point"><span>${formatScore(card.currentCost)}</span></div>`; if (gameState.score < card.currentCost) isButtonDisabled = true; }
+                cardEl.innerHTML = ` <div class="cartao-header"> <img src="${card.imageUrl}" alt="${card.name}" /> <div class="cartao-info"> <p class="card-name">${card.name}</p> ${levelText} <p class="description-info">${card.description}</p> ${bonusText} </div> </div> <div class="buy-button-container"> <button class="buy-card-btn" data-card-id="${card.id}" ${isButtonDisabled ? 'disabled' : ''}>${buttonHTML}</button> </div>`;
+                container.appendChild(cardEl);
+            });
+        }
+
+        function buyUpgradeCard(cardId) {
+            const card = gameState.upgradeCards.find(c => c.id === cardId);
+            if (!card) return;
+            if (card.realCost && !card.owned) {
+                if (confirm(`Isso é uma simulação.\nDeseja comprar ${card.name} por $${card.realCost.toFixed(2)}?`)) {
+                    card.owned = true; showGameMessage(`${card.name} comprado!`); recalculateStatsFromCards();
+                }
+            } else if (card.hasOwnProperty('unlocked') && !card.unlocked) {
+                if (confirm(`Isso é uma simulação.\nDeseja desbloquear ${card.name} por $${card.unlockCost.toFixed(2)}?`)) {
+                    card.unlocked = true; showGameMessage(`${card.name} desbloqueado!`);
+                }
+            } else if (card.currentCost) {
+                if (card.maxLevel && card.level >= card.maxLevel) { showGameMessage("Nível máximo atingido."); return; }
+                if (gameState.score >= card.currentCost) {
+                    gameState.score -= card.currentCost;
+                    switch (card.effectType) {
+                        case 'tph': gameState.autoIncomePerSecond += (card.currentBonus / 3600); break;
+                        case 'maxEnergy': gameState.maxEnergy += card.currentBonus; break;
+                        case 'tapPower': gameState.coinsPerTap += card.currentBonus; break;
+                    }
+                    card.level++; card.currentCost *= 2; card.currentBonus *= 2;
+                    if (card.effectType === 'tph') setupRoulette();
+                    showGameMessage(`${card.name} melhorado para Nível ${card.level}!`);
+                } else { showGameMessage(`Pontos insuficientes.`); }
+            }
+            updateUI(); saveGame();
+        }
+
+        function buyTicket() {
+            if (gameState.ticketPurchased) { showGameMessage('Você já possui um ingresso!'); return; }
+            if (gameState.score >= gameState.ticketCost) {
+                gameState.score -= gameState.ticketCost; gameState.ticketPurchased = true;
+                showGameMessage(`Ingresso comprado com sucesso!`); updateUI(); saveGame();
+            } else { showGameMessage(`Você precisa de ${formatScore(gameState.ticketCost)} EINSTEINPOINT para comprar o ingresso.`); }
+        }
+
+        // FRIENDS LOGIC
+        function renderFriendsModal() {
+            friendCountEl.textContent = gameState.friendsInvited;
+            friendRewardsListEl.innerHTML = '';
+            friendRewards.forEach(reward => {
+                const item = document.createElement('div');
+                item.className = 'reward-item';
+                if (reward.locked) item.classList.add('locked');
+                const isClaimed = gameState.claimedFriendRewards.includes(reward.id);
+                const canClaim = gameState.friendsInvited >= reward.friendsNeeded && !isClaimed && !reward.locked;
+                let buttonHTML = '';
+                if (isClaimed) { buttonHTML = `<button class="claimed-btn" disabled>Coletado</button>`;
+                } else if (reward.locked) { buttonHTML = `<button class="claim-btn" disabled><i class="fas fa-lock"></i></button>`;
+                } else { buttonHTML = `<button class="claim-btn" onclick="claimFriendReward(${reward.id})" ${canClaim ? '' : 'disabled'}>Coletar</button>`; }
+                item.innerHTML = ` <div class="reward-info"> <div class="goal">Convidar ${reward.friendsNeeded} amigos</div> <div class="progress-text">Recompensa: ${formatScore(reward.reward)} pontos</div> </div> <div class="reward-action">${buttonHTML}</div> `;
+                friendRewardsListEl.appendChild(item);
+            });
+        }
+        function inviteFriend() { gameState.friendsInvited++; showGameMessage(`Você convidou um amigo! Total: ${gameState.friendsInvited}`); renderFriendsModal(); saveGame(); }
+        function claimFriendReward(rewardId) {
+            const reward = friendRewards.find(r => r.id === rewardId);
+            if (!reward) return;
+            const isClaimed = gameState.claimedFriendRewards.includes(reward.id);
+            const canClaim = gameState.friendsInvited >= reward.friendsNeeded;
+            if (canClaim && !isClaimed) {
+                gameState.score += reward.reward; gainExp(reward.reward);
+                gameState.claimedFriendRewards.push(reward.id);
+                showGameMessage(`+${formatScore(reward.reward)} pontos coletados!`);
+                updateUI(); saveGame();
+            }
+        }
+        
+        // TASKS MODAL LOGIC
+        function renderTasksModal() {
+            if (!tasksContentEl) return;
+            tasksContentEl.innerHTML = ` <div class="task-section"> <h3>Tarefas Sociais</h3> <div id="social-tasks-list"></div> <p class="task-note">A coleta é simulada. Em um jogo real, seria necessário verificar a ação.</p> </div> <div class="task-section"> <h3>Anúncios Diários (Roleta)</h3> <p>Assista a anúncios para ganhar giros na roleta.</p> <p>Progresso: <strong id="daily-ads-count">${gameState.dailyAdsWatched}</strong> / 30</p> <button id="watch-daily-ad-btn" class="task-button">Assistir Anúncio (+1 Giro)</button> <button id="reset-daily-ads-btn" class="task-button" style="background-color: var(--secondary-color); margin-top: 5px;">Simular Novo Dia</button> </div> <div class="task-section" id="unlimited-ads-section"></div> `;
+            renderSocialTasks(); renderUnlimitedAdsTask();
+            document.getElementById('watch-daily-ad-btn').disabled = gameState.dailyAdsWatched >= 30;
+        }
+
+        function renderSocialTasks() {
+            const socialTasks = [ { id: 'youtube', name: 'Canal no YouTube', icon: 'fab fa-youtube' }, { id: 'twitter', name: 'Perfil no Twitter/X', icon: 'fab fa-twitter' }, { id: 'telegram', name: 'Canal no Telegram', icon: 'fab fa-telegram-plane' } ];
+            const container = document.getElementById('social-tasks-list');
+            container.innerHTML = '';
+            socialTasks.forEach(task => {
+                const isCompleted = gameState.socialsFollowed.includes(task.id);
+                container.innerHTML += ` <div class="task-item"> <div class="task-item-info"> <i class="${task.icon}"></i> <p>${task.name} <br> <span class="reward">+2K Pontos</span></p> </div> <button class="task-button" data-task-id="${task.id}" ${isCompleted ? 'disabled' : ''}> ${isCompleted ? 'Coletado' : 'Coletar'} </button> </div> `;
+            });
+        }
+        
+        function renderUnlimitedAdsTask() {
+            const container = document.getElementById('unlimited-ads-section');
+            if (gameState.unlimitedAdsPurchased) {
+                const now = new Date().getTime();
+                const fiveDaysInMillis = 5 * 24 * 60 * 60 * 1000;
+                
+                let isBonusTimeActive = false;
+                let bonusMessage = '';
+
+                if (gameState.unlimitedAdsBonusLastActivation && (now - gameState.unlimitedAdsBonusLastActivation < fiveDaysInMillis)) {
+                    isBonusTimeActive = true;
+                    const timeLeft = fiveDaysInMillis - (now - gameState.unlimitedAdsBonusLastActivation);
+                    const daysLeft = Math.ceil(timeLeft / (1000 * 60 * 60 * 24));
+                    bonusMessage = `<p class="task-note" style="color: var(--gold-color);">Mineração dobrada ativa! (${daysLeft} dia(s) restante(s))</p>`;
+                }
+
+                const hasRequiredItemsForBonus = gameState.ticketPurchased && gameState.unlimitedAdsPurchased && gameState.hasNft;
+                const isBonusActive = hasRequiredItemsForBonus && isBonusTimeActive;
+                const rewardAmount = isBonusActive ? 40000 : 20000;
+
+                container.innerHTML = `
+                    <h3>Anúncios Ilimitados (Pontos)</h3>
+                    <p>Você tem acesso a anúncios ilimitados!</p>
+                    <button id="watch-unlimited-ad-btn" class="task-button">Assistir (+${formatScore(rewardAmount)} Pontos)</button>
+                    ${isBonusActive ? bonusMessage : ''}
+                `;
+            } else {
+                container.innerHTML = `
+                    <h3>Anúncios Ilimitados (Pontos)</h3>
+                    <p>Compre o pacote para ganhar pontos assistindo a anúncios.</p>
+                    <button id="buy-unlimited-ads-btn" class="task-button">Comprar (3 TON - Simulado)</button>
+                `;
+            }
+        }
+
+        function claimSocialReward(taskId) {
+            if (gameState.socialsFollowed.includes(taskId)) return;
+            gameState.socialsFollowed.push(taskId); gameState.score += 2000; gainExp(2000);
+            showGameMessage('Recompensa de +2.000 pontos coletada!'); updateUI();
+        }
+
+        function watchDailyAd() {
+            if (gameState.dailyAdsWatched >= 30) { showGameMessage('Você já assistiu a todos os anúncios diários.'); return; }
+            gameState.dailyAdsWatched++; gameState.rouletteSpins++;
+            showGameMessage('Você ganhou +1 giro na roleta!'); updateUI();
+        }
+
+        function simulateDayReset() { 
+            gameState.dailyAdsWatched = 0; 
+            gameState.minas.availablePlays = 10;
+            gameState.mathChallenge.availablePlays = 10;
+            gameState.minas.lastResetDate = new Date().toLocaleDateString();
+            gameState.mathChallenge.lastResetDate = new Date().toLocaleDateString();
+            showGameMessage('Novo dia simulado! Rodadas grátis e anúncios resetados.');
+            updateUI(); 
+        }
+        
+        function buyUnlimitedAds() {
+            if (confirm('Isso é uma simulação de compra.\nDeseja adquirir Anúncios Ilimitados por 3 TON?')) {
+                gameState.unlimitedAdsPurchased = true; showGameMessage('Pacote de anúncios ilimitados comprado!'); updateUI();
+            }
+        }
+        
+        function watchUnlimitedAd() {
+            const now = new Date().getTime();
+            const fiveDaysInMillis = 5 * 24 * 60 * 60 * 1000;
+            const twentyFiveDaysInMillis = 25 * 24 * 60 * 60 * 1000;
+
+            let isBonusTimeActive = false;
+            
+            if (!gameState.unlimitedAdsBonusLastActivation || (now - gameState.unlimitedAdsBonusLastActivation > twentyFiveDaysInMillis)) {
+                gameState.unlimitedAdsBonusLastActivation = now;
+                saveGame();
+            }
+
+            if (gameState.unlimitedAdsBonusLastActivation && (now - gameState.unlimitedAdsBonusLastActivation < fiveDaysInMillis)) {
+                isBonusTimeActive = true;
+            }
+
+            const hasRequiredItemsForBonus = gameState.ticketPurchased && gameState.unlimitedAdsPurchased && gameState.hasNft;
+            const isBonusActive = hasRequiredItemsForBonus && isBonusTimeActive;
+
+            const rewardAmount = isBonusActive ? 40000 : 20000;
+            gameState.score += rewardAmount;
+            gainExp(rewardAmount);
+            showGameMessage(`Você ganhou +${formatScore(rewardAmount)} pontos!`);
+            updateUI();
+        }
+        
+        // MINIGAMES AND NFT STORE
+        function buyNft(nftName, nftPrice, nftCurrency) {
+            if (gameState.ownedNfts.some(nft => nft.name === nftName)) {
+                showGameMessage("Você já possui esta NFT!");
+                return;
+            }
+            if (confirm(`Isso é uma simulação de compra.\nDeseja comprar ${nftName} por ${nftPrice} ${nftCurrency}?`)) {
+                gameState.ownedNfts.push({ name: nftName, price: nftPrice, currency: nftCurrency });
+                gameState.hasNft = true;
+                showGameMessage(`${nftName} comprado com sucesso!`);
+                updateUI();
+            }
+        }
+
+        function renderNftStore() {
+            const buttons = document.querySelectorAll('#nft-store-modal .nft-item button');
+            buttons.forEach(button => {
+                const nftName = button.dataset.nftName;
+                if (gameState.ownedNfts.some(nft => nft.name === nftName)) {
+                    button.textContent = 'Adquirido';
+                    button.disabled = true;
+                }
+            });
+        }
+
+        function checkMinasDailyReset() {
+            const today = new Date().toLocaleDateString();
+            if (gameState.minas.lastResetDate !== today) {
+                gameState.minas.lastResetDate = today;
+                gameState.minas.availablePlays = 10;
+                if(document.getElementById('minas-modal').classList.contains('active')) {
+                   showGameMessage("Suas 10 rodadas grátis do Campo Minado foram reestabelecidas!");
+                }
+            }
+        }
+
+        function setupMinasView() {
+            checkMinasDailyReset(); 
+            minasDificuldadeSelect.innerHTML = '';
+            DIFICULDADES_MINAS.forEach(dificuldade => {
+                const option = document.createElement('option');
+                option.value = dificuldade.bombas;
+                option.dataset.multiplicador = dificuldade.multiplicador;
+                option.textContent = `${dificuldade.nome} (${dificuldade.bombas} bombas)`;
+                minasDificuldadeSelect.appendChild(option);
+            });
+            
+            if (!gameState.minas.gameActive) {
+                minasApostaInput.value = gameState.minas.currentBet || 500;
+                finalizarMinas(true, false);
+            }
+            
+            atualizarDisplayMultiplicador();
+            updateMinasUI();
+        }
+
+        function atualizarDisplayMultiplicador() {
+            const selectedOption = minasDificuldadeSelect.options[minasDificuldadeSelect.selectedIndex];
+            if (selectedOption) {
+                 const multiplicador = selectedOption.dataset.multiplicador;
+                 minasMultiplicadorEl.textContent = `${parseFloat(multiplicador).toFixed(2)}x`;
+            }
+        }
+
+        function iniciarJogoMinas() {
+            if (gameState.minas.gameActive) return;
+
+            if (gameState.minas.availablePlays <= 0) {
+                showGameMessage("Você não tem rodadas. Compre mais ou ganhe na roleta!");
+                return;
+            }
+
+            const apostaAtual = parseInt(minasApostaInput.value);
+
+            if (isNaN(apostaAtual) || apostaAtual <= 0) {
+                showGameMessage('O valor da aposta deve ser maior que zero.');
+                return;
+            }
+            if (gameState.score < apostaAtual) {
+                showGameMessage(`Você não tem EINSTEINPOINTs suficientes para apostar ${formatScore(apostaAtual)}.`);
+                return;
+            }
+
+            gameState.score -= apostaAtual;
+            gameState.minas.availablePlays--;
+            gameState.minas.currentBet = apostaAtual;
+            gameState.minas.currentWinnings = 0;
+            gameState.minas.gameActive = true;
+            
+            const bombasAtuais = parseInt(minasDificuldadeSelect.value);
+            gameState.minas.board = Array(MINAS_GRID_SIZE * MINAS_GRID_SIZE).fill(null).map(() => ({ isBomb: false, isRevealed: false }));
+
+            let bombsPlaced = 0;
+            while (bombsPlaced < bombasAtuais) {
+                const index = Math.floor(Math.random() * (MINAS_GRID_SIZE * MINAS_GRID_SIZE));
+                if (!gameState.minas.board[index].isBomb) {
+                    gameState.minas.board[index].isBomb = true;
+                    bombsPlaced++;
+                }
+            }
+            
+            minasStatusEl.textContent = 'Jogo iniciado! Cuidado com as bombas.';
+            renderMinasGrid();
+            updateUI();
+        }
+
+        function renderMinasGrid() {
+            minasGrid.innerHTML = '';
+            gameState.minas.board.forEach((cellData, index) => {
+                const cell = document.createElement('div');
+                cell.className = 'mina-cell';
+                cell.dataset.index = index;
+                if (cellData.isRevealed) {
+                    cell.classList.add('revealed');
+                    const content = document.createElement('div');
+                    content.className = 'mina-cell-content';
+                    if(cellData.isBomb) {
+                        content.textContent = '💣';
+                        cell.classList.add('bomb');
+                    } else {
+                        content.textContent = '💎';
+                    }
+                    cell.appendChild(content);
+                } else if(gameState.minas.gameActive) {
+                    cell.addEventListener('click', revelarMina);
+                }
+                minasGrid.appendChild(cell);
+            });
+        }
+        
+        function revelarMina(event) {
+            if (!gameState.minas.gameActive) return;
+            const cell = event.target.closest('.mina-cell');
+            if (!cell || cell.classList.contains('revealed')) return;
+            
+            const index = parseInt(cell.dataset.index);
+            const cellData = gameState.minas.board[index];
+            cellData.isRevealed = true;
+
+            if (cellData.isBomb) {
+                minasStatusEl.textContent = `BOOM! Você perdeu a aposta de ${formatScore(gameState.minas.currentBet)} EP.`;
+                showGameMessage('Você acertou uma bomba!');
+                finalizarMinas(false);
+            } else {
+                const bombasAtuais = parseInt(minasDificuldadeSelect.value);
+                const multiplicadorAtual = parseFloat(minasDificuldadeSelect.options[minasDificuldadeSelect.selectedIndex].dataset.multiplicador);
+                const celulasSegurasAbertas = gameState.minas.board.filter(c => c.isRevealed && !c.isBomb).length;
+                
+                const baseMultiplierPerPick = (multiplicadorAtual - 1) / (MINAS_GRID_SIZE*MINAS_GRID_SIZE - bombasAtuais);
+                const currentMultiplier = 1 + (celulasSegurasAbertas * baseMultiplierPerPick);
+                gameState.minas.currentWinnings = gameState.minas.currentBet * currentMultiplier;
+
+                minasGanhosEl.textContent = formatScore(gameState.minas.currentWinnings);
+                minasStatusEl.textContent = 'Seguro! Continue ou colete seus ganhos.';
+                renderMinasGrid();
+            }
+        }
+        
+        function coletarPontosMinas() {
+            if (!gameState.minas.gameActive || gameState.minas.currentWinnings <= 0) return;
+            
+            gameState.score += gameState.minas.currentWinnings;
+            gainExp(gameState.minas.currentWinnings);
+            showGameMessage(`Você coletou ${formatScore(gameState.minas.currentWinnings)} de ganhos!`);
+            
+            finalizarMinas(true);
+        }
+        
+        function finalizarMinas(success, showMsg = true) {
+            if(!gameState.minas.gameActive && !showMsg) { /* Do nothing */ }
+            else if (!success) {
+                gameState.minas.board.forEach(cell => { if (cell.isBomb) cell.isRevealed = true; });
+            }
+
+            gameState.minas.gameActive = false;
+            gameState.minas.currentWinnings = 0;
+            
+            if (showMsg) {
+                 minasStatusEl.textContent = success ? 'Ganhos coletados! Pronto para a próxima.' : 'Fim de jogo. Comece uma nova rodada.';
+            } else {
+                minasStatusEl.textContent = 'Ajuste sua aposta e dificuldade, depois inicie o jogo.'
+            }
+            
+            renderMinasGrid();
+            updateUI();
+            saveGame();
+        }
+
+        function comprarRodadasMinas() {
+            if (confirm("Isso é uma simulação de compra.\nDeseja comprar 50 rodadas por $0.50?")) {
+                gameState.minas.availablePlays += 50;
+                showGameMessage("Você comprou 50 rodadas para o Campo Minado!");
+                updateMinasUI();
+                saveGame();
+            }
+        }
+
+        function updateMinasUI() {
+            if (!document.getElementById('minas-modal').classList.contains('active')) return;
+            
+            minasGanhosEl.textContent = formatScore(gameState.minas.currentWinnings);
+            minasPlaysLeftEl.textContent = gameState.minas.availablePlays;
+            
+            const hasPlays = gameState.minas.availablePlays > 0;
+            const canAfford = gameState.score >= parseInt(minasApostaInput.value);
+
+            if (gameState.minas.gameActive) {
+                btnIniciarMinas.disabled = true;
+                minasApostaInput.disabled = true;
+                minasDificuldadeSelect.disabled = true;
+                btnColetarMinas.disabled = gameState.minas.currentWinnings === 0;
+                minasPurchaseContainer.style.display = 'none';
+            } else {
+                btnIniciarMinas.disabled = !hasPlays || !canAfford;
+                minasApostaInput.disabled = false;
+                minasDificuldadeSelect.disabled = false;
+                btnColetarMinas.disabled = true;
+                minasPurchaseContainer.style.display = hasPlays ? 'none' : 'block';
+                 if(!hasPlays) minasStatusEl.textContent = 'Você não tem mais rodadas. Compre mais para jogar.';
+                 else if (!canAfford) minasStatusEl.textContent = 'Pontos insuficientes para esta aposta.';
+            }
+        }
+
+        function populateLevelList() {
+            levelListEl.innerHTML = '';
+            levelData.forEach(level => {
+                const li = document.createElement('li');
+                li.innerHTML = `Nível ${level.level}: <span>${level.name}</span> <span class="points-required">(${formatScore(level.points)} EXP)</span>`;
+                if (level.level === gameState.playerLevel) li.classList.add('current-level');
+                levelListEl.appendChild(li);
+            });
+        }
+        
+        let prizeList = [];
+        function setupRoulette() {
+            const tph = (gameState.autoIncomePerSecond * 3600) || 200;
+            prizeList = [ 
+                { type: 'points', value: tph, label: `${formatScore(tph)} Pontos` }, 
+                { type: 'minas_spins', value: 1, label: '1 Rodada<br>Campo Minado' },
+                { type: 'nft_spins', value: 1, label: '1 Rodada<br>Jogo NFT' }, 
+                { type: 'points', value: tph * 0.5, label: `${formatScore(tph * 0.5)} Pontos` }, 
+                { type: 'roulette_spins', value: 3, label: '3 Giros<br>Grátis' }, 
+                { type: 'points', value: tph * 0.75, label: `${formatScore(tph * 0.75)} Pontos` }, 
+                { type: 'nft_spins', value: 3, label: '3 Rodadas<br>Jogo NFT' }, 
+                { type: 'minas_spins', value: 3, label: '3 Rodadas<br>Campo Minado' },
+                { type: 'points', value: tph * 0.25, label: `${formatScore(tph * 0.25)} Pontos` }, 
+                { type: 'math_spins', value: 5, label: '5 Rodadas<br>Einstein' } 
+            ];
+            rouletteWheel.innerHTML = '';
+            prizeList.forEach(prize => {
+                const slice = document.createElement('li');
+                slice.className = 'slice';
+                slice.innerHTML = `<div class="slice-contents">${prize.label}</div>`;
+                rouletteWheel.appendChild(slice);
+            });
+        }
+
+        function spinRoulette() {
+            if (gameState.rouletteSpins <= 0 || gameState.isRouletteSpinning) return;
+            gameState.isRouletteSpinning = true; gameState.rouletteSpins--; updateRouletteUI();
+            const spinDuration = 5000;
+            const randomIndex = Math.floor(Math.random() * prizeList.length);
+            const prize = prizeList[randomIndex];
+            const finalRotation = ((Math.floor(Math.random() * 4) + 8) * 360) + (360 - (randomIndex * 36 + 18));
+            rouletteWheel.style.transition = `transform ${spinDuration / 1000}s cubic-bezier(0.25, 1, 0.5, 1)`;
+            rouletteWheel.style.transform = `rotate(${finalRotation}deg)`;
+            setTimeout(() => {
+                awardPrize(prize); gameState.isRouletteSpinning = false;
+                rouletteWheel.style.transition = 'none';
+                rouletteWheel.style.transform = `rotate(${finalRotation % 360}deg)`;
+                updateUI(); saveGame();
+            }, spinDuration);
+        }
+        
+        function awardPrize(prize) {
+            let message = `Você ganhou: ${prize.label.replace('<br>', ' ')}!`;
+            switch(prize.type) {
+                case 'points': gameState.score += prize.value; gainExp(prize.value); break;
+                case 'roulette_spins': gameState.rouletteSpins += prize.value; break;
+                case 'nft_spins': gameState.nftGameSpins += prize.value; break;
+                case 'minas_spins': gameState.minas.availablePlays += prize.value; break;
+                case 'math_spins': gameState.mathChallenge.availablePlays += prize.value; break;
+                case 'try_again': message = "Que pena, tente outra vez!"; break;
+            }
+            showGameMessage(message);
+        }
+        
+        function updateRouletteUI() {
+            spinButton.textContent = `Girar (${gameState.rouletteSpins})`;
+            spinButton.disabled = gameState.rouletteSpins <= 0 || gameState.isRouletteSpinning;
+        }
+        
+        // --- ALTERAÇÃO APLICADA ABAIXO (Redução das recompensas) ---
+        function calculateMemoryGameReward() {
+            const level = gameState.playerLevel;
+            if (level >= 25) return 10000;
+            if (level >= 20) return 5000;
+            if (level >= 15) return 2500;
+            if (level >= 10) return 1000;
+            if (level >= 5) return 500;
+            return 250;
+        }
+
+        const memoryGameNftImages = ['carta1.png', 'carta2.png', 'carta3.png', 'carta4.png', 'carta5.png', 'carta6.png', 'carta7.png', 'carta8.png', 'carta9.png', 'carta10.png', 'carta11.png', 'carta12.png'];
+        const memoryGameNumPairs = 8;
+        let memoryGameFlippedCards = [], memoryGameMatchedPairs = 0, memoryGameLockBoard = false, memoryGameTimerInterval, memoryGameTimeLeft = 40;
+
+        function updateMemoryGamePlaysDisplay() {
+            if(memoryPlaysLeftSpan) { memoryPlaysLeftSpan.textContent = gameState.nftGameSpins; }
+        }
+
+        function initializeMemoryGame() {
+            if (gameState.nftGameSpins <= 0) {
+                memoryGameBoard.innerHTML = '';
+                memoryGameMessage.textContent = 'Você não tem rodadas. Ganhe mais na roleta!';
+                memoryResetButton.disabled = true;
+                return;
+            }
+            
+            memoryResetButton.textContent = "Reiniciar Jogo";
+            gameState.nftGameSpins--;
+            updateMemoryGamePlaysDisplay();
+            memoryResetButton.disabled = false;
+
+            memoryGameFlippedCards = []; memoryGameMatchedPairs = 0; memoryGameLockBoard = false;
+            memoryGameBoard.innerHTML = ''; memoryGameMessage.textContent = '';
+            
+            clearInterval(memoryGameTimerInterval);
+            memoryGameTimeLeft = 40;
+            memoryTimeLeftSpan.textContent = memoryGameTimeLeft;
+            startMemoryTimer();
+            
+            const selectedImages = memoryGameNftImages.slice(0, memoryGameNumPairs);
+            let cardsContent = [...selectedImages, ...selectedImages];
+            cardsContent.sort(() => Math.random() - 0.5);
+
+            cardsContent.forEach((imageUrl) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.dataset.imageUrl = imageUrl;
+                
+                const front = document.createElement('div'); front.className = 'front';
+                const img = document.createElement('img'); img.src = imageUrl; img.alt = `NFT`; front.appendChild(img);
+                const back = document.createElement('div'); back.className = 'back'; back.textContent = '?';
+                
+                card.append(front, back);
+                card.addEventListener('click', () => flipMemoryCard(card));
+                memoryGameBoard.appendChild(card);
+            });
+            memoryTotalPairsSpan.textContent = memoryGameNumPairs;
+            updateMemoryStatus();
+        }
+
+        function flipMemoryCard(card) {
+            if (memoryGameLockBoard || card.classList.contains('flipped') || card.classList.contains('matched') || memoryGameTimeLeft <= 0) return;
+            card.classList.add('flipped');
+            memoryGameFlippedCards.push(card);
+            if (memoryGameFlippedCards.length === 2) {
+                memoryGameLockBoard = true;
+                checkForMemoryMatch();
+            }
+        }
+
+        function checkForMemoryMatch() {
+            const [card1, card2] = memoryGameFlippedCards;
+            card1.dataset.imageUrl === card2.dataset.imageUrl ? disableMemoryCards() : unflipMemoryCards();
+        }
+
+        function disableMemoryCards() {
+            memoryGameFlippedCards.forEach(card => card.classList.add('matched'));
+            memoryGameMatchedPairs++;
+            updateMemoryStatus();
+            resetMemoryFlippedCards();
+            if (memoryGameMatchedPairs === memoryGameNumPairs) {
+                const reward = calculateMemoryGameReward();
+                gameState.score += reward;
+                gainExp(reward);
+                memoryGameMessage.textContent = `Parabéns! Você ganhou ${formatScore(reward)} pontos!`;
+                clearInterval(memoryGameTimerInterval);
+                memoryGameLockBoard = true;
+                updateUI();
+            }
+        }
+
+        function unflipMemoryCards() {
+            setTimeout(() => {
+                memoryGameFlippedCards.forEach(card => card.classList.remove('flipped'));
+                resetMemoryFlippedCards();
+            }, 1200);
+        }
+
+        function resetMemoryFlippedCards() { memoryGameFlippedCards = []; memoryGameLockBoard = false; }
+        function updateMemoryStatus() { memoryMatchedPairsSpan.textContent = memoryGameMatchedPairs; }
+
+        function startMemoryTimer() {
+            memoryGameTimerInterval = setInterval(() => {
+                memoryGameTimeLeft--;
+                memoryTimeLeftSpan.textContent = memoryGameTimeLeft;
+                if (memoryGameTimeLeft <= 0) {
+                    clearInterval(memoryGameTimerInterval);
+                    memoryGameLockBoard = true;
+                    memoryGameMessage.textContent = `Tempo esgotado! Você encontrou ${memoryGameMatchedPairs} de ${memoryGameNumPairs} pares.`;
+                }
+            }, 1000);
+        }
+
+
+        function checkMathChallengeDailyReset() {
+            const today = new Date().toLocaleDateString();
+            if (gameState.mathChallenge.lastResetDate !== today) {
+                gameState.mathChallenge.lastResetDate = today;
+                gameState.mathChallenge.availablePlays = 10;
+                if(document.getElementById('einstein-game-modal').classList.contains('active')) {
+                    showGameMessage("Suas 10 rodadas grátis do Desafio Einstein foram renovadas!");
+                }
+            }
+        }
+
+        function setupMathChallengeView() {
+            checkMathChallengeDailyReset();
+            mathLevelSelectScreen.style.display = 'block';
+            mathGameArea.style.display = 'none';
+            mathGameOverScreen.style.display = 'none';
+            updateMathChallengeUI();
+            if (!mathModal.querySelector('.level-selection button.selected')) {
+                const basicoBtn = mathModal.querySelector('.level-selection button[data-level="basico"]');
+                if (basicoBtn) {
+                   mathLevelButtons.forEach(btn => btn.classList.remove('selected'));
+                   basicoBtn.classList.add('selected');
+                   gameState.mathChallenge.gameLevel = 'basico';
+                }
+            }
+        }
+
+        function updateMathChallengeUI() {
+            if (!mathModal.classList.contains('active')) return;
+            mathPlaysLeftEl.textContent = gameState.mathChallenge.availablePlays;
+            mathStartBtn.disabled = gameState.mathChallenge.availablePlays <= 0;
+            if (gameState.mathChallenge.availablePlays <= 0) {
+                mathStartBtn.textContent = "Sem Rodadas";
+            } else {
+                mathStartBtn.textContent = "Começar o Desafio";
+            }
+        }
+
+        function startMathChallenge() {
+            if (gameState.mathChallenge.availablePlays <= 0) {
+                showGameMessage("Você não tem rodadas diárias restantes!");
+                return;
+            }
+            gameState.mathChallenge.availablePlays--;
+            gameState.mathChallenge.gameActive = true;
+            gameState.mathChallenge.timeLeft = 60;
+
+            mathLevelSelectScreen.style.display = 'none';
+            mathGameArea.style.display = 'block';
+            mathGameOverScreen.style.display = 'none';
+            mathSubmitBtn.style.display = 'block';
+            mathNextBtn.style.display = 'none';
+
+
+            mathTimerElement.textContent = `Tempo restante: ${gameState.mathChallenge.timeLeft}s`;
+            mathMessageElement.textContent = '';
+            
+            generateMathProblem();
+
+            gameState.mathChallenge.timerId = setInterval(() => {
+                gameState.mathChallenge.timeLeft--;
+                mathTimerElement.textContent = `Tempo restante: ${gameState.mathChallenge.timeLeft}s`;
+                if (gameState.mathChallenge.timeLeft <= 0) {
+                    endMathChallenge(false);
+                }
+            }, 1000);
+            updateUI();
+        }
+
+        function generateMathProblem() {
+            let num1, num2, operation;
+            let maxNum1, maxNum2;
+            let opSet;
+            const level = gameState.mathChallenge.gameLevel;
+
+            switch (level) {
+                case 'basico': maxNum1 = 15; maxNum2 = 10; opSet = ['+', '-']; break;
+                case 'intermediario': maxNum1 = 30; maxNum2 = 15; opSet = ['+', '-', '*']; break;
+                case 'dificil': maxNum1 = 50; maxNum2 = 20; opSet = ['+', '-', '*', '/']; break;
+                case 'einstein': maxNum1 = 100; maxNum2 = 25; opSet = ['+', '-', '*', '/']; break;
+            }
+
+            do {
+                num1 = Math.floor(Math.random() * maxNum1) + 1;
+                num2 = Math.floor(Math.random() * maxNum2) + 1;
+                operation = opSet[Math.floor(Math.random() * opSet.length)];
+
+                if (operation === '-') {
+                    if (num1 < num2) [num1, num2] = [num2, num1];
+                } else if (operation === '/') {
+                    if (num2 === 0 || num1 % num2 !== 0) {
+                        num1 = (Math.floor(Math.random() * (maxNum1/5)) + 1) * (Math.floor(Math.random()*5)+1);
+                        num2 = num1 / ((Math.floor(Math.random()*5)+1));
+                        if(num2 === 0 || isNaN(num2)) continue;
+                    }
+                }
+            } while (operation === '/' && (num2 === 0 || num1 % num2 !== 0));
+
+            let problemString, answer;
+            switch (operation) {
+                case '+': problemString = `${num1} + ${num2}`; answer = num1 + num2; break;
+                case '-': problemString = `${num1} - ${num2}`; answer = num1 - num2; break;
+                case '*': problemString = `${num1} * ${num2}`; answer = num1 * num2; break;
+                case '/': problemString = `${num1} / ${num2}`; answer = num1 / num2; break;
+            }
+
+            gameState.mathChallenge.currentProblem = { problemString, answer };
+            mathProblemElement.textContent = `Quanto é ${problemString}?`;
+            mathAnswerInput.value = '';
+            mathAnswerInput.focus();
+        }
+
+        function checkMathAnswer() {
+            if (!gameState.mathChallenge.gameActive) return;
+
+            const userAnswer = parseInt(mathAnswerInput.value, 10);
+            const betAmount = parseInt(mathBetInput.value, 10);
+
+            if (isNaN(betAmount) || betAmount <= 0) {
+                mathMessageElement.textContent = 'Aposta inválida!';
+                mathMessageElement.className = 'message incorrect';
+                return;
+            }
+            if (betAmount > gameState.score) {
+                mathMessageElement.textContent = 'Você não tem pontos suficientes para essa aposta!';
+                mathMessageElement.className = 'message incorrect';
+                return;
+            }
+            if (isNaN(userAnswer)) {
+                mathMessageElement.textContent = 'Por favor, digite um número na resposta!';
+                mathMessageElement.className = 'message incorrect';
+                return;
+            }
+            
+            mathSubmitBtn.style.display = 'none';
+            mathAnswerInput.disabled = true;
+            mathBetInput.disabled = true;
+
+            const isCorrect = userAnswer === gameState.mathChallenge.currentProblem.answer;
+
+            if (isCorrect) {
+                // --- ALTERAÇÃO APLICADA ABAIXO (Removido o bônus de 2x) ---
+                let pointsWon = betAmount;
+                gameState.score += pointsWon;
+                gainExp(pointsWon);
+                mathMessageElement.textContent = `Certo! Você ganhou ${formatScore(pointsWon)} pontos!`;
+                mathMessageElement.className = 'message correct';
+                mathNextBtn.textContent = 'Coletar e Continuar';
+            } else {
+                gameState.score -= betAmount;
+                mathMessageElement.textContent = `Errado! A resposta era ${gameState.mathChallenge.currentProblem.answer}. Você perdeu ${formatScore(betAmount)} pontos!`;
+                mathMessageElement.className = 'message incorrect';
+                mathNextBtn.textContent = 'Continuar';
+            }
+
+            updateScore();
+            mathNextBtn.style.display = 'block';
+        }
+        
+        function proceedToNextMathProblem() {
+            mathNextBtn.style.display = 'none';
+            mathMessageElement.textContent = '';
+            mathAnswerInput.disabled = false;
+            mathBetInput.disabled = false;
+            mathBetInput.value = ''; 
+            generateMathProblem();
+            mathSubmitBtn.style.display = 'block';
+        }
+
+        function endMathChallenge(finished) {
+            clearInterval(gameState.mathChallenge.timerId);
+            gameState.mathChallenge.gameActive = false;
+            
+            mathGameArea.style.display = 'none';
+            mathSubmitBtn.style.display = 'none';
+            mathNextBtn.style.display = 'none';
+            mathGameOverScreen.style.display = 'block';
+
+            mathFinalMessage.textContent = finished ? "Desafio finalizado!" : "O tempo acabou!";
+            saveGame();
+        }
+
+        // EVENT LISTENERS & INITIALIZATION
+        document.addEventListener('DOMContentLoaded', () => {
+            tapperButton.addEventListener('click', handleClick);
+            inviteFriendButton.addEventListener('click', inviteFriend);
+            spinButton.addEventListener('click', spinRoulette);
+            startGameButton.addEventListener('click', () => introScreen.classList.add('hidden'));
+            
+            btnIniciarMinas.addEventListener('click', iniciarJogoMinas);
+            btnColetarMinas.addEventListener('click', coletarPontosMinas);
+            btnComprarRodadasMinas.addEventListener('click', comprarRodadasMinas);
+            minasDificuldadeSelect.addEventListener('change', atualizarDisplayMultiplicador);
+            minasApostaInput.addEventListener('input', updateMinasUI);
+
+            mathStartBtn.addEventListener('click', startMathChallenge);
+            mathSubmitBtn.addEventListener('click', checkMathAnswer);
+            mathNextBtn.addEventListener('click', proceedToNextMathProblem);
+            mathRestartBtn.addEventListener('click', setupMathChallengeView);
+            mathLevelButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    mathLevelButtons.forEach(btn => btn.classList.remove('selected'));
+                    button.classList.add('selected');
+                    gameState.mathChallenge.gameLevel = button.dataset.level;
+                });
+            });
+            mathAnswerInput.addEventListener('keypress', (e) => { if (e.key === 'Enter' && mathSubmitBtn.style.display !== 'none') mathSubmitBtn.click(); });
+
+
+            ticketButton.addEventListener('click', buyTicket);
+            hamburgerButton.addEventListener('click', toggleSideMenu);
+            sideMenuCloseButton.addEventListener('click', toggleSideMenu);
+            sideMenuOverlay.addEventListener('click', toggleSideMenu);
+            memoryResetButton.addEventListener('click', initializeMemoryGame);
+
+            document.querySelectorAll('[data-modal-target]').forEach(button => {
+                button.addEventListener('click', (e) => openModal(e.currentTarget.dataset.modalTarget));
+            });
+
+            document.querySelectorAll('.modal-close-button, .modal-overlay').forEach(element => {
+                element.addEventListener('click', (e) => {
+                    if (e.target.closest('.modal-content') && !e.target.classList.contains('modal-close-button') && !e.target.closest('.modal-close-button')) return;
+                    closeModal(e);
+                });
+            });
+
+            document.getElementById('improve-modal').addEventListener('click', function(e) {
+                const buyButton = e.target.closest('.buy-card-btn');
+                if (buyButton) buyUpgradeCard(buyButton.dataset.cardId);
+            });
+
+            tasksContentEl.addEventListener('click', (e) => {
+                const target = e.target;
+                if (target.matches('.task-button') && target.dataset.taskId) { claimSocialReward(target.dataset.taskId); } 
+                else if (target.id === 'watch-daily-ad-btn') { watchDailyAd(); } 
+                else if (target.id === 'reset-daily-ads-btn') { simulateDayReset(); } 
+                else if (target.id === 'buy-unlimited-ads-btn') { buyUnlimitedAds(); } 
+                else if (target.id === 'watch-unlimited-ad-btn') { watchUnlimitedAd(); }
+            });
+            
+            document.getElementById('nft-store-modal').addEventListener('click', function(e) {
+                const buyButton = e.target.closest('button[data-nft-name]');
+                if (buyButton && !buyButton.disabled) {
+                    buyNft(buyButton.dataset.nftName, parseFloat(buyButton.dataset.nftPrice), buyButton.dataset.nftCurrency);
+                }
+            });
+
+            let isDragging = false, startX, startY, initialButtonX, initialButtonY;
+            function onDragStart(clientX, clientY) { isDragging = true; floatingButton.style.transition = 'none'; startX = clientX; startY = clientY; const rect = floatingButton.getBoundingClientRect(); initialButtonX = rect.left; initialButtonY = rect.top; floatingButton.style.cursor = 'grabbing'; }
+            function onDragMove(clientX, clientY) { if (!isDragging) return; const dx = clientX - startX, dy = clientY - startY; let currentX = initialButtonX + dx, currentY = initialButtonY + dy; const maxX = window.innerWidth - floatingButton.offsetWidth; const navbarHeight = document.querySelector('.bottom-navbar').offsetHeight; const maxY = window.innerHeight - floatingButton.offsetHeight - navbarHeight; currentX = Math.max(0, Math.min(currentX, maxX)); currentY = Math.max(0, Math.min(currentY, maxY)); floatingButton.style.left = `${currentX}px`; floatingButton.style.top = `${currentY}px`; }
+            function onDragEnd() { isDragging = false; floatingButton.style.transition = 'all 0.2s ease-out'; floatingButton.style.cursor = 'grab'; document.removeEventListener('mousemove', onMouseMove); document.removeEventListener('mouseup', onMouseUp); document.removeEventListener('touchmove', onTouchMove); document.removeEventListener('touchend', onTouchEnd); }
+            function onMouseDown(e) { onDragStart(e.clientX, e.clientY); document.addEventListener('mousemove', onMouseMove); document.addEventListener('mouseup', onMouseUp); }
+            function onMouseMove(e) { e.preventDefault(); onDragMove(e.clientX, e.clientY); }
+            function onMouseUp() { onDragEnd(); }
+            function onTouchStart(e) { onDragStart(e.touches[0].clientX, e.touches[0].clientY); document.addEventListener('touchmove', onTouchMove, { passive: false }); document.addEventListener('touchend', onTouchEnd); }
+            function onTouchMove(e) { e.preventDefault(); onDragMove(e.touches[0].clientX, e.touches[0].clientY); }
+            function onTouchEnd() { onDragEnd(); }
+            floatingButton.addEventListener('mousedown', onMouseDown);
+            floatingButton.addEventListener('touchstart', onTouchStart);
+
+            function setInitialButtonPosition() {
+                const navbarHeight = document.querySelector('.bottom-navbar').offsetHeight; 
+                floatingButton.style.left = `${window.innerWidth - floatingButton.offsetWidth - 20}px`;
+                floatingButton.style.top = `${window.innerHeight - floatingButton.offsetHeight - 20 - navbarHeight}px`;
+            }
+
+            // Game Initialization
+            loadGame();
+            setInitialButtonPosition();
+            setInterval(rechargeEnergy, 1000);
+            setInterval(applyAutoIncome, 1000);
+            setInterval(saveGame, 5000);
+            setInterval(updateUI, 250);
+        });
+    </script>
+</body>
+</html>
